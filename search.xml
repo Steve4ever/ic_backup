@@ -118,24 +118,6 @@
       </tags>
   </entry>
   <entry>
-    <title>At-Speed Patterns and On-Chip Clock Controllers</title>
-    <url>/ic_backup/2024/07/15/At-Speed-Patterns-and-On-Chip-Clock-Controllers/</url>
-    <content><![CDATA[<h1 id="At-Speed-Patterns-and-On-Chip-Clock-Controllers"><a href="#At-Speed-Patterns-and-On-Chip-Clock-Controllers" class="headerlink" title="At-Speed Patterns and On-Chip Clock Controllers"></a><strong>At-Speed Patterns and On-Chip Clock Controllers</strong></h1><h2 id="0-Objectives"><a href="#0-Objectives" class="headerlink" title="0.Objectives"></a>0.Objectives</h2><p>本次学习的目标是可以为at-speed的ATPG创建patterns</p>
-<p>（1）可以完成Transition fault pattern的创建</p>
-<p>（2）可以完成path delay pattern的创建</p>
-<p>描述一下怎么去定义内部的clock去做atpg的</p>
-<p>了解IDDQ的pattern</p>
-<p><img src="https://cdn.jsdelivr.net/gh/Steve4ever/blog_pic/20240715230556.png" alt="image-20240715230555839"></p>
-<h2 id="1-What-is-the-at-speed-test"><a href="#1-What-is-the-at-speed-test" class="headerlink" title="1.What is the at speed test?"></a>1.What is the at speed test?</h2><p>​        在工艺节点在130nm以下的时候，很多情形下的物理缺陷都是由于延时来引起的。因此在对这种类型的chip做dft的时候，需要建立一个新的故障模型，称之为延时故障模型（time delay model）。解决的方法就是全速测试，所谓的全速测试就是让芯片工作在自己的高频时钟频率上，这个频率往往是要高过ATE*<font color='salmon'>[Automatic Test Equipment 自动测试机台]</font>*时钟的。这样对扫描模型的建立就提出了新的要求。即至少要保证芯片的launch clock和capture clock为芯片内部的高频率时钟。synopsys对此种问题的解决方法就是OCC（on chip clocking）。</p>
-]]></content>
-      <categories>
-        <category>Verilog</category>
-      </categories>
-      <tags>
-        <tag>DFT</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>CNN</title>
     <url>/ic_backup/2022/06/08/CNN/</url>
     <content><![CDATA[<h1 id="神经网络，深度学习，机器学习"><a href="#神经网络，深度学习，机器学习" class="headerlink" title="神经网络，深度学习，机器学习"></a>神经网络，深度学习，机器学习</h1><h2 id="1-神经网络"><a href="#1-神经网络" class="headerlink" title="1.神经网络"></a>1.神经网络</h2><p>神经网络，该模型灵感来自动物的中枢神经系统，通常呈现为相互连接的神经元，它可以对输入值通过反馈机制使得它们适应对应的输出。</p>
@@ -156,6 +138,24 @@
       </categories>
       <tags>
         <tag>CNNs</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>At-Speed Patterns and On-Chip Clock Controllers</title>
+    <url>/ic_backup/2024/07/15/At-Speed-Patterns-and-On-Chip-Clock-Controllers/</url>
+    <content><![CDATA[<h1 id="At-Speed-Patterns-and-On-Chip-Clock-Controllers"><a href="#At-Speed-Patterns-and-On-Chip-Clock-Controllers" class="headerlink" title="At-Speed Patterns and On-Chip Clock Controllers"></a><strong>At-Speed Patterns and On-Chip Clock Controllers</strong></h1><h2 id="0-Objectives"><a href="#0-Objectives" class="headerlink" title="0.Objectives"></a>0.Objectives</h2><p>本次学习的目标是可以为at-speed的ATPG创建patterns</p>
+<p>（1）可以完成Transition fault pattern的创建</p>
+<p>（2）可以完成path delay pattern的创建</p>
+<p>描述一下怎么去定义内部的clock去做atpg的</p>
+<p>了解IDDQ的pattern</p>
+<p><img src="https://cdn.jsdelivr.net/gh/Steve4ever/blog_pic/20240715230556.png" alt="image-20240715230555839"></p>
+<h2 id="1-What-is-the-at-speed-test"><a href="#1-What-is-the-at-speed-test" class="headerlink" title="1.What is the at speed test?"></a>1.What is the at speed test?</h2><p>​        在工艺节点在130nm以下的时候，很多情形下的物理缺陷都是由于延时来引起的。因此在对这种类型的chip做dft的时候，需要建立一个新的故障模型，称之为延时故障模型（time delay model）。解决的方法就是全速测试，所谓的全速测试就是让芯片工作在自己的高频时钟频率上，这个频率往往是要高过ATE*<font color='salmon'>[Automatic Test Equipment 自动测试机台]</font>*时钟的。这样对扫描模型的建立就提出了新的要求。即至少要保证芯片的launch clock和capture clock为芯片内部的高频率时钟。synopsys对此种问题的解决方法就是OCC（on chip clocking）。</p>
+]]></content>
+      <categories>
+        <category>Verilog</category>
+      </categories>
+      <tags>
+        <tag>DFT</tag>
       </tags>
   </entry>
   <entry>
@@ -220,19 +220,6 @@
       </categories>
       <tags>
         <tag>DDR</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>K最近邻算法</title>
-    <url>/ic_backup/2022/08/12/K%E6%9C%80%E8%BF%91%E9%82%BB%E7%AE%97%E6%B3%95/</url>
-    <content><![CDATA[<p>K最近邻算法（K-Nearest Neighbors,KNN）</p>
-<p>原理</p>
-]]></content>
-      <categories>
-        <category>PYNQ</category>
-      </categories>
-      <tags>
-        <tag>python</tag>
       </tags>
   </entry>
   <entry>
@@ -332,6 +319,19 @@
 ]]></content>
       <tags>
         <tag>FIFO</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>K最近邻算法</title>
+    <url>/ic_backup/2022/08/12/K%E6%9C%80%E8%BF%91%E9%82%BB%E7%AE%97%E6%B3%95/</url>
+    <content><![CDATA[<p>K最近邻算法（K-Nearest Neighbors,KNN）</p>
+<p>原理</p>
+]]></content>
+      <categories>
+        <category>PYNQ</category>
+      </categories>
+      <tags>
+        <tag>python</tag>
       </tags>
   </entry>
   <entry>
@@ -455,14 +455,14 @@
     <content><![CDATA[<h1 id="innovus环境的设置"><a href="#innovus环境的设置" class="headerlink" title="innovus环境的设置"></a>innovus环境的设置</h1><h2 id="1-00-common-initial-settings-tcl"><a href="#1-00-common-initial-settings-tcl" class="headerlink" title="1. 00_common_initial_settings.tcl"></a>1. 00_common_initial_settings.tcl</h2><figure class="highlight tcl"><table><tr><td class="code"><pre><span class="line"><span class="comment">#### design information设计的顶层名字</span></span><br><span class="line"><span class="keyword">set</span> design <span class="string">&quot;leon&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment">### design data directory数据和报告放的位置</span></span><br><span class="line"><span class="keyword">set</span> data_root    <span class="string">&quot;./data&quot;</span></span><br><span class="line"><span class="keyword">set</span> reports_root <span class="string">&quot;./reports&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment">### gate level netlist files 所需要导入网表的路径</span></span><br><span class="line"><span class="keyword">set</span> import_netlists <span class="string">&quot;&quot;</span></span><br><span class="line"><span class="keyword">lappend</span> import_netlists <span class="string">&quot;data/00_input/$&#123;design&#125;.vnet.gz&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment">### SDC files</span></span><br><span class="line"></span><br><span class="line"><span class="comment">### UPF files</span></span><br><span class="line"></span><br><span class="line"><span class="comment">### tech lef</span></span><br><span class="line"><span class="keyword">set</span> tech_lef <span class="string">&quot;/foundry/tmic/xxx/tech/tlef/gsclib045_tech.lef&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment">### library files 物理lef的库，analog给出</span></span><br><span class="line"><span class="keyword">set</span> lef_files <span class="string">&quot;&quot;</span> ##使用这种tcl的形式可以在该变量中加入多个库文件</span><br><span class="line"><span class="keyword">lappend</span> lef_files <span class="string">&quot;/analog/library/hard_marco0/xxx.lef&quot;</span></span><br><span class="line"><span class="keyword">lappend</span> lef_files <span class="string">&quot;/analog/library/hard_marco1/xxx.lef&quot;</span></span><br><span class="line"><span class="keyword">lappend</span> lef_files <span class="string">&quot;/analog/library/hard_marco2/xxx.lef&quot;</span></span><br><span class="line"><span class="keyword">lappend</span> lef_files <span class="string">&quot;/analog/library/hard_marco3/xxx.lef&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment">### PEX tech 抽取rc的tech file</span></span><br><span class="line"><span class="keyword">set</span> qrc_tech(rcbest) <span class="string">&quot;/tech/qrc/rcbest/qrcTechFile&quot;</span></span><br><span class="line"><span class="keyword">set</span> qrc_tech(rcworst) <span class="string">&quot;/tech/qrc/rcworst/qrcTechFile&quot;</span></span><br><span class="line"><span class="keyword">set</span> qrc_tech(typical) <span class="string">&quot;/tech/qrc/typical/qrcTechFile&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment">### view (scenarios) of each step</span></span><br><span class="line"><span class="keyword">set</span> default_scenarios <span class="string">&quot;func_slow_rcworst&quot;</span></span><br><span class="line"><span class="keyword">set</span> placeopt_scenarios <span class="string">&quot;func_slow_rcworst&quot;</span></span><br><span class="line"><span class="keyword">set</span> cts_scenarios <span class="string">&quot;cts_slow_rcworst&quot;</span></span><br><span class="line"><span class="keyword">set</span> clockopt_scenarios <span class="string">&quot;func_slow_rcworst func_fast_rcbest&quot;</span></span><br><span class="line"><span class="keyword">set</span> routeopt_scenarios <span class="string">&quot;func_slow_rcworst func_fast_rcbest&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#cells type settings</span></span><br><span class="line"><span class="keyword">set</span> fillers_ref <span class="string">&quot;FILL1 FILL16 FILL2&quot;</span></span><br><span class="line"><span class="keyword">set</span> welltap_ref <span class="string">&quot;DECAP8&quot;</span></span><br><span class="line"><span class="comment">#### END</span></span><br></pre></td></tr></table></figure>
 
 <h2 id="2-01-innovus-import-tcl"><a href="#2-01-innovus-import-tcl" class="headerlink" title="2. 01_innovus_import.tcl"></a>2. 01_innovus_import.tcl</h2><p>Description: read gate level netlist into innovus</p>
-<figure class="highlight tcl"><table><tr><td class="code"><pre><span class="line"><span class="keyword">source</span> script/<span class="number">00</span>_common_initial_settings.tcl</span><br><span class="line"><span class="keyword">source</span> script/zhenyu_procs.tcl</span><br><span class="line"></span><br><span class="line"><span class="comment">### variables</span></span><br><span class="line"><span class="keyword">set</span> current_step <span class="string">&quot;01_innovus_import&quot;</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight tcl"><table><tr><td class="code"><pre><span class="line"><span class="keyword">source</span> script/<span class="number">00</span>_common_initial_settings.tcl</span><br><span class="line"><span class="keyword">source</span> script/zhenyu_procs.tcl</span><br><span class="line"></span><br><span class="line"><span class="comment">### variables 定义每个步骤产生的文件存放的位置</span></span><br><span class="line"><span class="keyword">set</span> current_step <span class="string">&quot;01_innovus_import&quot;</span></span><br><span class="line"><span class="keyword">set</span> reports_dir <span class="string">&quot;$&#123;reports_root&#125;/$&#123;current_step&#125;&quot;</span></span><br><span class="line"><span class="keyword">set</span> data_dir <span class="string">&quot;$&#123;data_root&#125;/$&#123;current_step&#125;&quot;</span></span><br><span class="line"><span class="keyword">file</span> mkdir <span class="variable">$reports_dir</span></span><br><span class="line"><span class="keyword">file</span> mkdir <span class="variable">$data_dir</span></span><br><span class="line"></span><br><span class="line"><span class="comment">### initial option</span></span><br><span class="line"></span><br><span class="line"><span class="comment">### design setting</span></span><br><span class="line">set_init_top_cell <span class="variable">$design</span> ##读入设计变量，基本以init为开头</span><br><span class="line">set_init_assign_buffer <span class="number">1</span></span><br><span class="line">setImportMode -keepEmptyModule true ##有些逻辑只有input/output的端口，但是没有逻辑，就是设置需不需要keep</span><br><span class="line"><span class="comment">### read design</span></span><br><span class="line"></span><br><span class="line"><span class="comment">### connect pg</span></span><br></pre></td></tr></table></figure>
 
 ]]></content>
       <categories>
-        <category>Verilog</category>
+        <category>backend</category>
       </categories>
       <tags>
-        <tag>backend</tag>
+        <tag>innovus</tag>
       </tags>
   </entry>
   <entry>
