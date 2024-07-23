@@ -1,0 +1,236 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"><title>FIFO | Nanchen's Blog</title><meta name="keywords" content="FIFO"><meta name="author" content="Nanchen Zhang"><meta name="copyright" content="Nanchen Zhang"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="FIFO简介FIFO的英文全称是First In First Out，即先进先出。FPGA使用的FIFO一般指的是对数据的存储具有先进先出特性的一个缓存器，常被用于数据的缓存，或者高速异步数据的交互也即所谓的跨时钟域信号传递。它与FPGA内部的RAM和ROM的区别是没有外部读写地址线，采取顺序写入数据，顺序读出数据的方式，使用起来简单方便，其数据地址由内部读写指针自动加1完成，由此带来的缺点就是不">
+<meta property="og:type" content="article">
+<meta property="og:title" content="FIFO">
+<meta property="og:url" content="https://steve4ever.github.io/2022/03/30/FIFO/index.html">
+<meta property="og:site_name" content="Nanchen&#39;s Blog">
+<meta property="og:description" content="FIFO简介FIFO的英文全称是First In First Out，即先进先出。FPGA使用的FIFO一般指的是对数据的存储具有先进先出特性的一个缓存器，常被用于数据的缓存，或者高速异步数据的交互也即所谓的跨时钟域信号传递。它与FPGA内部的RAM和ROM的区别是没有外部读写地址线，采取顺序写入数据，顺序读出数据的方式，使用起来简单方便，其数据地址由内部读写指针自动加1完成，由此带来的缺点就是不">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://s3.bmp.ovh/imgs/2022/08/07/27cf72a68651ad31.jpg">
+<meta property="article:published_time" content="2022-03-30T01:26:31.000Z">
+<meta property="article:modified_time" content="2022-07-21T01:18:22.250Z">
+<meta property="article:author" content="Nanchen Zhang">
+<meta property="article:tag" content="FIFO">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://s3.bmp.ovh/imgs/2022/08/07/27cf72a68651ad31.jpg"><link rel="shortcut icon" href="/ic_backup/img/mailchimp-brands.png"><link rel="canonical" href="https://steve4ever.github.io/2022/03/30/FIFO/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/ic_backup/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = { 
+  root: '/ic_backup/',
+  algolia: undefined,
+  localSearch: {"path":"/ic_backup/search.xml","preload":false,"languages":{"hits_empty":"找不到您查询的内容：${query}"}},
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  date_suffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery@2/dist/fjGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery@2/dist/fjGallery.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'FIFO',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: true,
+  isToc: true,
+  postUpdate: '2022-07-21 09:18:22'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const detectApple = () => {
+      if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><meta name="generator" content="Hexo 6.0.0"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="https://s3.bmp.ovh/imgs/2022/05/25/01148322b7935660.jpg" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/ic_backup/archives/"><div class="headline">文章</div><div class="length-num">20</div></a><a href="/ic_backup/tags/"><div class="headline">标签</div><div class="length-num">16</div></a><a href="/ic_backup/categories/"><div class="headline">分类</div><div class="length-num">5</div></a></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/ic_backup/"><i class="fa-fw fa fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/ic_backup/archives/"><i class="fa-fw fa fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/ic_backup/tags/"><i class="fa-fw fa fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/ic_backup/categories/"><i class="fa-fw fa fa-folder-open"></i><span> Categories</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://s3.bmp.ovh/imgs/2022/08/07/27cf72a68651ad31.jpg')"><nav id="nav"><span id="blog_name"><a id="site-name" href="/ic_backup/">Nanchen's Blog</a></span><div id="menus"><div id="search-button"><a class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/ic_backup/"><i class="fa-fw fa fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/ic_backup/archives/"><i class="fa-fw fa fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/ic_backup/tags/"><i class="fa-fw fa fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/ic_backup/categories/"><i class="fa-fw fa fa-folder-open"></i><span> Categories</span></a></div></div><div id="toggle-menu"><a class="site-page"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">FIFO</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2022-03-30T01:26:31.000Z" title="发表于 2022-03-30 09:26:31">2022-03-30</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2022-07-21T01:18:22.250Z" title="更新于 2022-07-21 09:18:22">2022-07-21</time></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">字数总计:</span><span class="word-count">2.9k</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">阅读时长:</span><span>10分钟</span></span><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="FIFO"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><h1 id="FIFO简介"><a href="#FIFO简介" class="headerlink" title="FIFO简介"></a><strong>FIFO简介</strong></h1><p>FIFO的英文全称是First In First Out，即先进先出。<font color='redorange'>FPGA使用的FIFO一般指的是对数据的存储具有先进先出特性的一个缓存器，</font><font color='magenta'>常被用于数据的缓存，</font>或者<font color='magenta'>高速异步数据的交互</font>也即<font color='magenta'>所谓的跨时钟域信号传递</font>。<font color='salmon'>它与FPGA内部的RAM和ROM的区别是没有外部读写地址线，采取顺序写入数据，顺序读出数据的方式，使用起来简单方便，</font>其数据地址由内部读写指针自动加1完成，由此带来的缺点就是不能像RAM和ROM那样可以由地址线决定读取或写入某个指定的地址。</p>
+<h2 id="同步-x2F-异步FIFO"><a href="#同步-x2F-异步FIFO" class="headerlink" title="同步&#x2F;异步FIFO"></a>同步&#x2F;异步FIFO</h2><p>1.同步FIFO：指读时钟和写时钟为同一个时钟，在时钟沿来临时同时发生读写操作。</p>
+<p>2.异步FIFO：指读写时钟不一致，读写时钟是互相独立的。</p>
+<p>Xilinx 的FIFO IP 核可以被配置为同步FIFO 或异步FIFO，其信号框图如下图所示。从图中可以了解到，<font color='salmon'>当被配置为同步FIFO 时，只使用 wr_clk，所有的输入输出信号都同步于wrclk 信号。</font><font color='each'>而当被配置为异步FIFO 时，写端口和读端口分别有独立的时钟，所有与写相关的信号都是同步于写时钟wr_clk，所有与读相关的信号都是同步于读时钟rdclk。</font></p>
+<img src="https://s3.bmp.ovh/imgs/2022/06/22/4658059710b487b5.png" alt="image-20220622113651743" style="zoom: 50%;" />
+
+<h2 id="FIFO的常见参数"><a href="#FIFO的常见参数" class="headerlink" title="FIFO的常见参数"></a>FIFO的常见参数</h2><p>FIFO 的宽度：FIFO 一次读写操作的数据位N； </p>
+<p>FIFO 的深度：FIFO 可以存储多少个宽度为N 位的数据。 </p>
+<p>空标志：empty。FIFO 已空时由 FIFO 的状态电路送出的一个信号，以阻止FIFO 的读操作继续从FIFO中读出数据而造成无效数据的读出。 </p>
+<p>将空标志：almost_ empty。FIFO 即将被读空。 </p>
+<p>满标志：full。FIFO 已满时由 FIFO 的状态电路送出的一个信号，以阻止FIFO 的写操作继续向 FIFO 中写数据而造成溢出。</p>
+<p>将满标志：almost_full。FIFO 即将被写满。 </p>
+<p>读时钟：<font color='salmon'>读FIFO 时所遵循的时钟，在每个时钟的上升沿触发。</font></p>
+<p> 这里请注意，“almost_ empty”和“almost_full”这两个信号分别被看作“empty”和“full”的警告信号，他们距离真正的空（empty）和满（full）都一个时钟的延时。本实验将使用这两个信号。 </p>
+<p>写时钟：<font color='salmon'>写FIFO 时所遵循的时钟，在每个时钟的上升沿触发。 </font></p>
+<p>这里请注意，“almost_empty”和“almost_full”这两个信号分别被看作“empty”和“full”的警告信号，他们相对于真正的空（empty）和满（full）都会提前一个时钟周期拉高。</p>
+<p><font color='salmon'>将读指针传递到写时钟域才能产生满信号，将写指针传递到读时钟域才能产生空信号，因此，这里就涉及到如何处理信号传输的亚稳态问题。</font></p>
+<h1 id="FIFO的功能"><a href="#FIFO的功能" class="headerlink" title="FIFO的功能"></a>FIFO的功能</h1><p> FIFO的功能类似于一个调节上下游水量的一个蓄水池。</p>
+<p><img src="https://s3.bmp.ovh/imgs/2022/06/22/5ca001549621553b.png" alt="img"></p>
+<p><strong>1.FIFO 的上游结点是FIFO的数据输入端,</strong></p>
+<p> 在写信号有效时,数据将被写入FIFO，由FIFO内部的写指针控制,并且在FIFO内部，写指针递增一个单元，同时FIFO的满信号(FIFO fulll Signal）将控制上游结点是否发送数据；</p>
+<p><strong>2.FIFO的下游节点是FIFO 的数据输出端，</strong></p>
+<p>当读信号有效时，FIFO中的数据将被读出，由FIFO内部的读指针控制，并且在FIFO内部读指针递增一个单元，同时FIFO空信号(FIFO empty Signal）将控制下游节点是否读出数据。</p>
+<p><strong>3.FIFO内部的空间已经被写满</strong></p>
+<p> 如果FIFO内部的空间已经被写满，则实时生成满信号，以反压上游节点，上游节点停止写新的数据进来，否则就会把已经写好的数据冲掉。</p>
+<p><strong>4.FIFO内部的数据全部被读</strong></p>
+<p>如果FIFO内部的数据全部被读，则实时生成空信号，控制下游节点不再进行数据读操作。否则，下游节点就会将读过的数据重新再读一遍。</p>
+<p><strong>5.FIFO用途：</strong> <font color='Salmon'>FIFO主要用来调节上下游数据的吞吐量。</font></p>
+<p><strong>6.FIFO空满状态的判断</strong></p>
+<p><strong>&#x3D;&#x3D;空状态:&#x3D;&#x3D;</strong></p>
+<p>当读写地址相等时，说明已经写入的数据，已经全部被读走，此时，FIFO还尚未有新的数据写入，说明FIFO为空。</p>
+<p><strong>空状态情况发生：</strong></p>
+<ul>
+<li>复位操作时，</li>
+<li>当读地址读出FIFO中最后一个字后，追赶上了写地址。</li>
+</ul>
+<p><strong>判断条件：</strong> </p>
+<p>​    如果两个指针的MSB相同，则说明两个指针折回的次数相等。其余位相等，说明FIFO为空。</p>
+<p><strong>&#x3D;&#x3D;满状态：&#x3D;&#x3D;</strong></p>
+<p>此时，读地址已经读过的地址空间，再一次被写地址写入。而读地址到最高地址之间的数据，还尚未被读。说明此时FIFO处于满的状态。</p>
+<p><strong>判断条件：</strong></p>
+<p>​    如果两个指针的最高有效位MSB不同，说明写指针比读指针多折回了一次;</p>
+<p>​    如r_addr&#x3D;0000，而w_addr &#x3D; 1000，为满。</p>
+<p><strong>&#x3D;&#x3D;区分满状态、空状态方法：&#x3D;&#x3D;</strong></p>
+<p>   <strong>在地址位中添加一个额外的位(extra bit)。</strong></p>
+<p>​    当写指针增加并越过最后一个FIFO地址时，就将写指针这个未用的MSB加1，其它位回零.</p>
+<p>​    对读指针也进行同样操作。</p>
+<p>此时，对于深度为2^n的FIFO，需要的读&#x2F;写指针位宽为(n + 1) 位</p>
+<p>例子：深度为8的FIFO，需要采用4bit的计数器， 0000～1000、 1001～1111，MSB作为折回标志位，而低3位作为地址指针。</p>
+<p>更多知识参考：<a target="_blank" rel="noopener" href="https://blog.csdn.net/weixin_41788560/article/details/125339168">(44条消息) 同步电路与跨时钟域电路设计2——多bit信号的跨时钟域传输（FIFO）_桐桐花的博客-CSDN博客</a></p>
+<h1 id="FIFO使用二进制读写指针的问题及解决（格雷码）"><a href="#FIFO使用二进制读写指针的问题及解决（格雷码）" class="headerlink" title="FIFO使用二进制读写指针的问题及解决（格雷码）"></a>FIFO使用二进制读写指针的问题及解决（格雷码）</h1><p>跨时钟域的问题：由于读指针是属于读时钟域的，写指针是属于写时钟域的，而异步FIFO的读写时钟域不同，是异步的，要是将读时钟域的读指针与写时钟域的写指针不做任何处理直接比较肯定是错误的，因此我们需要进行同步处理以后仔进行比较<br><font color='RedOrange'>解决方法： 加两级寄存器同步 + 格雷码（目的都是消除亚稳态）</font></p>
+<p><strong>格雷码的特点：</strong></p>
+<ol>
+<li><p>格雷码相邻的2个数值之间只会有一位发生变化，其余各位都相同</p>
+</li>
+<li><p>格雷码是一种循环码，0和最大数(2的n次方减1)之间也只有一位不同</p>
+<p>用格雷码之后，相邻数值只有1位发生翻转，1位翻转所引起的亚稳态的概率远 远要小于几位同时翻转所引起的概率。因此，格雷码能很好的亚稳态出现的概率。</p>
+</li>
+</ol>
+<h2 id="什么是亚稳态"><a href="#什么是亚稳态" class="headerlink" title="什么是亚稳态"></a>什么是亚稳态</h2><p><strong>亚稳态(Metastable)：</strong>是指触发器无法在某个规定时间段内达到一个确定的状态。</p>
+<img src="https://s3.bmp.ovh/imgs/2022/06/22/fab70f4554c84540.png" alt="image-20220622204804059" style="zoom: 33%;" />
+
+<p><strong>亚稳态产生的原因：</strong>在FPGA的系统中，如果数据传输不满足触发器的T<del>su</del>（建立时间）和T<del>h</del>（保持时间），或者复位过程中复位信号的释放不满足有效时钟沿的恢复时间（recovery time），就有可能产生亚稳态。</p>
+<p><strong>深入浅出理解亚稳态：</strong>数字信号中，只有1和0，所以2V-5V代表逻辑电平1，0V-0.8V代表逻辑电平0，中间的0.8V-2V没有定义，不妨称之为<font color='orange'>“模糊电平”</font>。如果此时CLK突然产生了一个上升沿，“时钟门”相当于就被关闭了，A与B由于还没完成跳变，就处在了“模糊电平”，需要一定的时间才能恢复到明确定义的逻辑电平，此时就引起了亚稳态。</p>
+<p><strong>由于输入与clk的变化不同步而导致了亚稳态。所以从宏观角度来说，亚稳态的产生是由于输入的异步性。</strong></p>
+<h2 id="亚稳态的经典解决方案"><a href="#亚稳态的经典解决方案" class="headerlink" title="亚稳态的经典解决方案"></a>亚稳态的经典解决方案</h2><img src="https://s3.bmp.ovh/imgs/2022/06/22/41975b72b089ca93.png" alt="image-20220622210132857" style="zoom:50%;" />
+
+<p>知道了亚稳态产生的原因是由于输入的异步特性，所以解决的方法当然就是把输入同步化。经典解决方案就是在异步的输入后面接上两个同步的寄存器。</p>
+<p>解决亚稳态的代码</p>
+<figure class="highlight verilog"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">module</span> asy_to_syn(clk,rst_n,signal_in,signal_out);</span><br><span class="line"><span class="keyword">input</span> clk;</span><br><span class="line"><span class="keyword">input</span> rst_n;</span><br><span class="line"><span class="keyword">input</span> signal_in;</span><br><span class="line"><span class="keyword">output</span>  signal_out;</span><br><span class="line"><span class="keyword">reg</span> state_tmp0,state_tmp1;</span><br><span class="line"></span><br><span class="line"><span class="keyword">always</span>@(<span class="keyword">posedge</span> clk <span class="keyword">or</span> <span class="keyword">negedge</span> rst_n)</span><br><span class="line">    <span class="keyword">if</span>(!rst_n) <span class="keyword">begin</span></span><br><span class="line">        state_tmp0 &lt;= <span class="number">1&#x27;b0</span>;</span><br><span class="line">        state_tmp1 &lt;= <span class="number">1&#x27;b0</span>;</span><br><span class="line">    <span class="keyword">end</span></span><br><span class="line">    <span class="keyword">else</span> <span class="keyword">begin</span></span><br><span class="line">        state_tmp0 &lt;= signal_in;</span><br><span class="line">        state_tmp1 &lt;= state_tmp0;</span><br><span class="line">    <span class="keyword">end</span></span><br><span class="line"><span class="keyword">assign</span> signal_out = state_tmp1;</span><br><span class="line"><span class="keyword">endmodule</span></span><br></pre></td></tr></table></figure>
+
+<h1 id="设计FIFO深度"><a href="#设计FIFO深度" class="headerlink" title="设计FIFO深度"></a>设计FIFO深度</h1><p>设计之前要清楚：分析清楚数据轻载和重载时数据的传输任务<br>如果FIFO能在重载的时候满足需求，轻载的时候，肯定可以胜任。</p>
+<p><strong>FIFO深度计算总结：</strong> </p>
+<blockquote>
+<p>写时钟频率： WCLK     写时钟周期&#x3D;1&#x2F;WCLK<br>读时钟频率： RCLK      读时钟周期&#x3D;1&#x2F;RCLK<br>写时每B个时钟周期内会有 A个数据写入FIFO （写入效率A&#x2F;B）<br>读时每Y个时钟周期内会有 X个数据读出FIFO（读出效率X&#x2F;Y）</p>
+</blockquote>
+<img src="https://s3.bmp.ovh/imgs/2022/06/23/ce3caaec35995847.png" alt="image-20220623084642447" style="zoom: 33%;" />
+
+<p><font color='RedOrange'>连续传输数据的周期称为 burst长度：</font>burst_length表示这段时间写入的数据量</p>
+<p><font color='RedOrange'>burst的持续时间：</font>burst长度*写时钟周期 (burst_length &#x2F; WCLK)</p>
+<p><font color='RedOrange'>读的实际速度：</font>(RCLK*(X&#x2F;Y))，</p>
+<p><font color='RedOrange'>burst的持续时间这段时间读出的数据量：</font>burst的持续时间*读的实际速度</p>
+<p>​                     (burst_length &#x2F; WCLK )<em>(RCLK</em>(X&#x2F;Y))</p>
+<p><font color='RedOrange'>理论上的 FIFO的最小深度： </font>写入和读出两者之差为FIFO中残留的数据</p>
+<p>​            burst_length -  (burst_length &#x2F; WCLK )<em>(RCLK</em>(X&#x2F;Y))</p>
+<p>————————————————<br>原文链接：<a target="_blank" rel="noopener" href="https://blog.csdn.net/weixin_41788560/article/details/125339168">https://blog.csdn.net/weixin_41788560/article/details/125339168</a></p>
+<h1 id="FIFO-IP核的使用"><a href="#FIFO-IP核的使用" class="headerlink" title="FIFO IP核的使用"></a><strong>FIFO IP核的使用</strong></h1><img src="https://s3.bmp.ovh/imgs/2022/06/22/f49924c6122fae96.png" alt="image-20220622172052887" style="zoom: 50%;" />
+
+<h1 id="异步FIFO程序设计"><a href="#异步FIFO程序设计" class="headerlink" title="异步FIFO程序设计"></a>异步FIFO程序设计</h1><figure class="highlight verilog"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">module</span> fifo_async#(</span><br><span class="line">                 <span class="keyword">parameter</span>   data_width = <span class="number">16</span>,</span><br><span class="line">                 <span class="keyword">parameter</span>   data_depth = <span class="number">256</span>,</span><br><span class="line">                 <span class="keyword">parameter</span>   addr_width = <span class="number">8</span></span><br><span class="line">)</span><br><span class="line">(</span><br><span class="line">                  <span class="keyword">input</span>                           rst,</span><br><span class="line">                  <span class="keyword">input</span>                           wr_clk,</span><br><span class="line">                  <span class="keyword">input</span>                           wr_en,</span><br><span class="line">                  <span class="keyword">input</span>      [data_width-<span class="number">1</span>:<span class="number">0</span>]     din,         </span><br><span class="line">                  <span class="keyword">input</span>                           rd_clk,</span><br><span class="line">                  <span class="keyword">input</span>                           rd_en,</span><br><span class="line">                  <span class="keyword">output</span> <span class="keyword">reg</span>                     valid,</span><br><span class="line">                  <span class="keyword">output</span> <span class="keyword">reg</span> [data_width-<span class="number">1</span>:<span class="number">0</span>]     dout,</span><br><span class="line">                  <span class="keyword">output</span>                          empty,</span><br><span class="line">                  <span class="keyword">output</span>                          full</span><br><span class="line">    );</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">reg</span>    [addr_width:<span class="number">0</span>]    wr_addr_ptr;<span class="comment">//地址指针，比地址多一位，MSB用于检测在同一圈</span></span><br><span class="line"><span class="keyword">reg</span>    [addr_width:<span class="number">0</span>]    rd_addr_ptr;</span><br><span class="line"><span class="keyword">wire</span>   [addr_width-<span class="number">1</span>:<span class="number">0</span>]  wr_addr;<span class="comment">//RAM 地址</span></span><br><span class="line"><span class="keyword">wire</span>   [addr_width-<span class="number">1</span>:<span class="number">0</span>]  rd_addr;</span><br><span class="line"></span><br><span class="line"><span class="keyword">wire</span>   [addr_width:<span class="number">0</span>]    wr_addr_gray;<span class="comment">//地址指针对应的格雷码</span></span><br><span class="line"><span class="keyword">reg</span>    [addr_width:<span class="number">0</span>]    wr_addr_gray_d1;</span><br><span class="line"><span class="keyword">reg</span>    [addr_width:<span class="number">0</span>]    wr_addr_gray_d2;</span><br><span class="line"><span class="keyword">wire</span>   [addr_width:<span class="number">0</span>]    rd_addr_gray;</span><br><span class="line"><span class="keyword">reg</span>    [addr_width:<span class="number">0</span>]    rd_addr_gray_d1;</span><br><span class="line"><span class="keyword">reg</span>    [addr_width:<span class="number">0</span>]    rd_addr_gray_d2;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">reg</span> [data_width-<span class="number">1</span>:<span class="number">0</span>] fifo_ram [data_depth-<span class="number">1</span>:<span class="number">0</span>];</span><br><span class="line"></span><br><span class="line"><span class="comment">//=========================================================write fifo </span></span><br><span class="line"><span class="keyword">genvar</span> i;</span><br><span class="line"><span class="keyword">generate</span> </span><br><span class="line"><span class="keyword">for</span>(i = <span class="number">0</span>; i &lt; data_depth; i = i + <span class="number">1</span> )</span><br><span class="line"><span class="keyword">begin</span>:fifo_init</span><br><span class="line"><span class="keyword">always</span>@(<span class="keyword">posedge</span> wr_clk <span class="keyword">or</span> <span class="keyword">posedge</span> rst)</span><br><span class="line">    <span class="keyword">begin</span></span><br><span class="line">       <span class="keyword">if</span>(rst)</span><br><span class="line">          fifo_ram[i] &lt;= <span class="number">&#x27;h0</span>;<span class="comment">//fifo复位后输出总线上是0，并非ram中真的复位。可无</span></span><br><span class="line">       <span class="keyword">else</span> <span class="keyword">if</span>(wr_en &amp;&amp; (~full))</span><br><span class="line">          fifo_ram[wr_addr] &lt;= din;</span><br><span class="line">       <span class="keyword">else</span></span><br><span class="line">          fifo_ram[wr_addr] &lt;= fifo_ram[wr_addr];</span><br><span class="line">    <span class="keyword">end</span>   </span><br><span class="line"><span class="keyword">end</span>    </span><br><span class="line"><span class="keyword">endgenerate</span>    </span><br><span class="line"><span class="comment">//========================================================read_fifo</span></span><br><span class="line"><span class="keyword">always</span>@(<span class="keyword">posedge</span> rd_clk <span class="keyword">or</span> <span class="keyword">posedge</span> rst)</span><br><span class="line">   <span class="keyword">begin</span></span><br><span class="line">      <span class="keyword">if</span>(rst)</span><br><span class="line">         <span class="keyword">begin</span></span><br><span class="line">            dout &lt;= <span class="number">&#x27;h0</span>;</span><br><span class="line">            valid &lt;= <span class="number">1&#x27;b0</span>;</span><br><span class="line">         <span class="keyword">end</span></span><br><span class="line">      <span class="keyword">else</span> <span class="keyword">if</span>(rd_en &amp;&amp; (~empty))</span><br><span class="line">         <span class="keyword">begin</span></span><br><span class="line">            dout &lt;= fifo_ram[rd_addr];</span><br><span class="line">            valid &lt;= <span class="number">1&#x27;b1</span>;</span><br><span class="line">         <span class="keyword">end</span></span><br><span class="line">      <span class="keyword">else</span></span><br><span class="line">         <span class="keyword">begin</span></span><br><span class="line">            dout &lt;=   <span class="number">&#x27;h0</span>;<span class="comment">//fifo复位后输出总线上是0，并非ram中真的复位，只是让总线为0；</span></span><br><span class="line">            valid &lt;= <span class="number">1&#x27;b0</span>;</span><br><span class="line">         <span class="keyword">end</span></span><br><span class="line">   <span class="keyword">end</span></span><br><span class="line"><span class="keyword">assign</span> wr_addr = wr_addr_ptr[addr_width-<span class="number">1</span>-:addr_width];</span><br><span class="line"><span class="keyword">assign</span> rd_addr = rd_addr_ptr[addr_width-<span class="number">1</span>-:addr_width];</span><br><span class="line"><span class="comment">//=============================================================格雷码同步化</span></span><br><span class="line"><span class="keyword">always</span>@(<span class="keyword">posedge</span> wr_clk )</span><br><span class="line">   <span class="keyword">begin</span></span><br><span class="line">      rd_addr_gray_d1 &lt;= rd_addr_gray;</span><br><span class="line">      rd_addr_gray_d2 &lt;= rd_addr_gray_d1;</span><br><span class="line">   <span class="keyword">end</span></span><br><span class="line"><span class="keyword">always</span>@(<span class="keyword">posedge</span> wr_clk <span class="keyword">or</span> <span class="keyword">posedge</span> rst)</span><br><span class="line">   <span class="keyword">begin</span></span><br><span class="line">      <span class="keyword">if</span>(rst)</span><br><span class="line">         wr_addr_ptr &lt;= <span class="number">&#x27;h0</span>;</span><br><span class="line">      <span class="keyword">else</span> <span class="keyword">if</span>(wr_en &amp;&amp; (~full))</span><br><span class="line">         wr_addr_ptr &lt;= wr_addr_ptr + <span class="number">1</span>;</span><br><span class="line">      <span class="keyword">else</span> </span><br><span class="line">         wr_addr_ptr &lt;= wr_addr_ptr;</span><br><span class="line">   <span class="keyword">end</span></span><br><span class="line"><span class="comment">//=========================================================rd_clk</span></span><br><span class="line"><span class="keyword">always</span>@(<span class="keyword">posedge</span> rd_clk )</span><br><span class="line">      <span class="keyword">begin</span></span><br><span class="line">         wr_addr_gray_d1 &lt;= wr_addr_gray;</span><br><span class="line">         wr_addr_gray_d2 &lt;= wr_addr_gray_d1;</span><br><span class="line">      <span class="keyword">end</span></span><br><span class="line"><span class="keyword">always</span>@(<span class="keyword">posedge</span> rd_clk <span class="keyword">or</span> <span class="keyword">posedge</span> rst)</span><br><span class="line">   <span class="keyword">begin</span></span><br><span class="line">      <span class="keyword">if</span>(rst)</span><br><span class="line">         rd_addr_ptr &lt;= <span class="number">&#x27;h0</span>;</span><br><span class="line">      <span class="keyword">else</span> <span class="keyword">if</span>(rd_en &amp;&amp; (~empty))</span><br><span class="line">         rd_addr_ptr &lt;= rd_addr_ptr + <span class="number">1</span>;</span><br><span class="line">      <span class="keyword">else</span> </span><br><span class="line">         rd_addr_ptr &lt;= rd_addr_ptr;</span><br><span class="line">   <span class="keyword">end</span></span><br><span class="line"></span><br><span class="line"><span class="comment">//========================================================== translation gary code</span></span><br><span class="line"><span class="keyword">assign</span> wr_addr_gray = (wr_addr_ptr &gt;&gt; <span class="number">1</span>) ^ wr_addr_ptr;</span><br><span class="line"><span class="keyword">assign</span> rd_addr_gray = (rd_addr_ptr &gt;&gt; <span class="number">1</span>) ^ rd_addr_ptr;</span><br><span class="line"></span><br><span class="line"><span class="keyword">assign</span> full = (wr_addr_gray == &#123;~(rd_addr_gray_d2[addr_width-:<span class="number">2</span>]),rd_addr_gray_d2[addr_width-<span class="number">2</span>:<span class="number">0</span>]&#125;) ;<span class="comment">//高两位不同</span></span><br><span class="line"><span class="keyword">assign</span> empty = ( rd_addr_gray == wr_addr_gray_d2 );</span><br><span class="line"></span><br><span class="line"><span class="keyword">endmodule</span></span><br></pre></td></tr></table></figure>
+
+<p>源代码：<a target="_blank" rel="noopener" href="https://blog.csdn.net/alangaixiaoxiao/article/details/81432144">异步FIFO—Verilog实现_alangaixiaoxiao的博客-CSDN博客_异步fifo</a></p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="https://steve4ever.github.io">Nanchen Zhang</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="https://steve4ever.github.io/2022/03/30/FIFO/">https://steve4ever.github.io/2022/03/30/FIFO/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="https://steve4ever.github.io" target="_blank">Nanchen's Blog</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/ic_backup/tags/FIFO/">FIFO</a></div><div class="post_share"><div class="social-share" data-image="https://s3.bmp.ovh/imgs/2022/08/07/27cf72a68651ad31.jpg" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/social-share.js/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/gh/overtrue/share.js@master/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/ic_backup/2022/03/31/%E7%BA%A2%E5%A4%96%E5%9B%BE%E5%83%8F%E5%A4%84%E7%90%86/"><img class="prev-cover" src="https://s3.bmp.ovh/imgs/2022/08/07/27cf72a68651ad31.jpg" onerror="onerror=null;src='/ic_backup/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">红外图像处理</div></div></a></div><div class="next-post pull-right"><a href="/ic_backup/2022/03/29/DDR/"><img class="next-cover" src="https://s3.bmp.ovh/imgs/2022/08/07/27cf72a68651ad31.jpg" onerror="onerror=null;src='/ic_backup/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">DDR</div></div></a></div></nav></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="https://s3.bmp.ovh/imgs/2022/05/25/01148322b7935660.jpg" onerror="this.onerror=null;this.src='/ic_backup/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">Nanchen Zhang</div><div class="author-info__description">Accumulate tenderness in autumn</div></div><div class="card-info-data site-data is-center"><a href="/ic_backup/archives/"><div class="headline">文章</div><div class="length-num">20</div></a><a href="/ic_backup/tags/"><div class="headline">标签</div><div class="length-num">16</div></a><a href="/ic_backup/categories/"><div class="headline">分类</div><div class="length-num">5</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://weibo.com/u/5863848519"><i class="fa fa-github"></i><span>Find Me</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://weibo.com/u/5863848519" target="_blank" title="Weibo"><i class="fas fa-weibo"></i></a><a class="social-icon" href="mailto:xxxxxx@gmail.com" target="_blank" title="Email"><i class="fas fa-envelope"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">CNN convolutional neural network accelerator based on FPGA</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#FIFO%E7%AE%80%E4%BB%8B"><span class="toc-number">1.</span> <span class="toc-text">FIFO简介</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%90%8C%E6%AD%A5-x2F-%E5%BC%82%E6%AD%A5FIFO"><span class="toc-number">1.1.</span> <span class="toc-text">同步&#x2F;异步FIFO</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#FIFO%E7%9A%84%E5%B8%B8%E8%A7%81%E5%8F%82%E6%95%B0"><span class="toc-number">1.2.</span> <span class="toc-text">FIFO的常见参数</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#FIFO%E7%9A%84%E5%8A%9F%E8%83%BD"><span class="toc-number">2.</span> <span class="toc-text">FIFO的功能</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#FIFO%E4%BD%BF%E7%94%A8%E4%BA%8C%E8%BF%9B%E5%88%B6%E8%AF%BB%E5%86%99%E6%8C%87%E9%92%88%E7%9A%84%E9%97%AE%E9%A2%98%E5%8F%8A%E8%A7%A3%E5%86%B3%EF%BC%88%E6%A0%BC%E9%9B%B7%E7%A0%81%EF%BC%89"><span class="toc-number">3.</span> <span class="toc-text">FIFO使用二进制读写指针的问题及解决（格雷码）</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BB%80%E4%B9%88%E6%98%AF%E4%BA%9A%E7%A8%B3%E6%80%81"><span class="toc-number">3.1.</span> <span class="toc-text">什么是亚稳态</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%9A%E7%A8%B3%E6%80%81%E7%9A%84%E7%BB%8F%E5%85%B8%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88"><span class="toc-number">3.2.</span> <span class="toc-text">亚稳态的经典解决方案</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E8%AE%BE%E8%AE%A1FIFO%E6%B7%B1%E5%BA%A6"><span class="toc-number">4.</span> <span class="toc-text">设计FIFO深度</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#FIFO-IP%E6%A0%B8%E7%9A%84%E4%BD%BF%E7%94%A8"><span class="toc-number">5.</span> <span class="toc-text">FIFO IP核的使用</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%BC%82%E6%AD%A5FIFO%E7%A8%8B%E5%BA%8F%E8%AE%BE%E8%AE%A1"><span class="toc-number">6.</span> <span class="toc-text">异步FIFO程序设计</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/ic_backup/2024/07/22/innovus-import-design/" title="innovus import design"><img src="https://s3.bmp.ovh/imgs/2022/06/01/ba0841fd1a8554c4.jpg" onerror="this.onerror=null;this.src='/ic_backup/img/404.jpg'" alt="innovus import design"/></a><div class="content"><a class="title" href="/ic_backup/2024/07/22/innovus-import-design/" title="innovus import design">innovus import design</a><time datetime="2024-07-22T14:55:41.000Z" title="发表于 2024-07-22 22:55:41">2024-07-22</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/ic_backup/2024/07/15/At-Speed-Patterns-and-On-Chip-Clock-Controllers/" title="At-Speed Patterns and On-Chip Clock Controllers"><img src="https://cdn.jsdelivr.net/gh/Steve4ever/blog_pic/20240715224754.jpg" onerror="this.onerror=null;this.src='/ic_backup/img/404.jpg'" alt="At-Speed Patterns and On-Chip Clock Controllers"/></a><div class="content"><a class="title" href="/ic_backup/2024/07/15/At-Speed-Patterns-and-On-Chip-Clock-Controllers/" title="At-Speed Patterns and On-Chip Clock Controllers">At-Speed Patterns and On-Chip Clock Controllers</a><time datetime="2024-07-15T14:45:56.000Z" title="发表于 2024-07-15 22:45:56">2024-07-15</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/ic_backup/2024/06/06/vimrc-config/" title=".vimrc config"><img src="https://s3.bmp.ovh/imgs/2022/08/07/27cf72a68651ad31.jpg" onerror="this.onerror=null;this.src='/ic_backup/img/404.jpg'" alt=".vimrc config"/></a><div class="content"><a class="title" href="/ic_backup/2024/06/06/vimrc-config/" title=".vimrc config">.vimrc config</a><time datetime="2024-06-06T14:57:14.000Z" title="发表于 2024-06-06 22:57:14">2024-06-06</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/ic_backup/2022/09/11/%E5%88%86%E9%A2%91%E5%99%A8/" title="分频器"><img src="https://s3.bmp.ovh/imgs/2022/06/01/ba0841fd1a8554c4.jpg" onerror="this.onerror=null;this.src='/ic_backup/img/404.jpg'" alt="分频器"/></a><div class="content"><a class="title" href="/ic_backup/2022/09/11/%E5%88%86%E9%A2%91%E5%99%A8/" title="分频器">分频器</a><time datetime="2022-09-11T02:12:31.000Z" title="发表于 2022-09-11 10:12:31">2022-09-11</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/ic_backup/2022/08/29/MobileNet/" title="MobileNet"><img src="https://s3.bmp.ovh/imgs/2022/06/01/ed66b8f549f1a181.jpg" onerror="this.onerror=null;this.src='/ic_backup/img/404.jpg'" alt="MobileNet"/></a><div class="content"><a class="title" href="/ic_backup/2022/08/29/MobileNet/" title="MobileNet">MobileNet</a><time datetime="2022-08-29T01:27:00.000Z" title="发表于 2022-08-29 09:27:00">2022-08-29</time></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy;2020 - 2024 By Nanchen Zhang</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><i class="fas fa-arrow-up"></i></button></div></div><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="is-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据库加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div><hr/><div id="local-search-results"></div></div></div><div id="search-mask"></div></div><div><script src="/ic_backup/js/utils.js"></script><script src="/ic_backup/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.umd.js"></script><script src="/ic_backup/js/search/local-search.js"></script><div class="js-pjax"></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>

@@ -1,0 +1,696 @@
+<?xml version="1.0" encoding="utf-8"?>
+<search>
+  <entry>
+    <title>AXI GPIO</title>
+    <url>/ic_backup/2022/05/04/AXI-GPIO/</url>
+    <content><![CDATA[<h1 id="Introduction"><a href="#Introduction" class="headerlink" title="Introduction"></a>Introduction</h1><p>Xilinx® LogiCORE™ IP AXI 通用输入&#x2F;输出 (GPIO) 内核为 AXI 接口提供通用输入&#x2F;输出接口。 这个 32 位IP内核旨在与 AXI4-Lite 接口连接。（参考Xilinx的开发指南：AXI GPIO v2.0 LogiCORE IP Product Guide（PG144））</p>
+<span id="more"></span>
+
+<h2 id="Features"><a href="#Features" class="headerlink" title="Features"></a>Features</h2><p>1* 支持 AXI4-Lite 接口规范</p>
+<p>2* 支持可配置的单或双 GPIO 通道</p>
+<p>3* 支持 1 至 32 位 GPIO 引脚的可配置通道宽度</p>
+<p>4* 支持将每个 GPIO 位动态编程为输入或输出</p>
+<p>5* 支持每个通道的单独配置</p>
+<p>6* 支持所有寄存器的每一位的独立复位值</p>
+<p>7* 支持可选的中断请求生成</p>
+<p><font color='magenta'>注： 具体的配置信息可见 Vivado中 AXI GPIO IP核。</font></p>
+<p><img src="https://s3.bmp.ovh/imgs/2022/05/23/ad440dcce161270d.png"></p>
+<h1 id="Function-Description"><a href="#Function-Description" class="headerlink" title="Function Description"></a>Function Description</h1><p>AXI GPIO 设计为 AXI4-Lite 接口提供通用输入&#x2F;输出接口。  </p>
+<p>AXI GPIO 可以配置为单通道或双通道设备。 每个通道的宽度可独立配置。</p>
+<p><font color='orange'>通过启用或禁用三态缓冲器，端口动态配置为输入或输出</font>。 （虚线部分为三态缓冲区）。</p>
+<p>通道可以配置为在其任何输入发生变换时生成中断。(这里发生变换的意思就是信号从1到0或者从0到1) 。</p>
+<p><font color='redorange'>AXI GPIO 内核的顶层框图如Figure 1-1所示。</font></p>
+<p><img src="https://s3.bmp.ovh/imgs/2022/05/23/ebefe74aa6c3ff1b.png" alt="image-20220504164845460"></p>
+<h2 id="（1）AXI4-Lite-Interface"><a href="#（1）AXI4-Lite-Interface" class="headerlink" title="（1）AXI4-Lite Interface"></a>（1）AXI4-Lite Interface</h2><p>​    AXI4-Lite 接口模块实现了一个 32 位 AXI4-Lite 从接口，用于访问 GPIO 通道寄存器。 有关 AXI4-Lite 从接口的更多详细信息，请参阅 AXI4-Lite IPIF LogiCORE IP Product Guide (PG155) 的规范使用部分。</p>
+<h2 id="（2）Interrupt-Control"><a href="#（2）Interrupt-Control" class="headerlink" title="（2）Interrupt Control"></a>（2）Interrupt Control</h2><p>中断控制从 GPIO 通道获取中断状态并生成中断给主机。 当在 Vivado® IDE 中设置了 Enable Interrupt 选项时，它会被启用。</p>
+<h2 id="（3）GPIO-Core"><a href="#（3）GPIO-Core" class="headerlink" title="（3）GPIO Core"></a>（3）GPIO Core</h2><p>​    GPIO 内核由寄存器（Register）和多路复用器（MUX）组成，用于读取和写入 AXI GPIO 通道寄存器。 它还包括在通道输入发生变化时识别中断事件的必要逻辑。</p>
+<p>​    图中的三态缓冲器实际上并不是内核的一部分。 当在 Vivado Design Suite 中生成输出产品时，三态缓冲器会自动添加到顶层设计封装文件中。</p>
+<h1 id="Port-Descriptions"><a href="#Port-Descriptions" class="headerlink" title="Port Descriptions"></a>Port Descriptions</h1><p><font color='redorange'>表 2-3 列出并描述了 AXI GPIO I&#x2F;O 信号。需要注意几个信号的有效状态。</font></p>
+<p><img src="https://s3.bmp.ovh/imgs/2022/05/23/302565591984de99.png" alt="image-20220504174433551"></p>
+<h1 id="Register-Space"><a href="#Register-Space" class="headerlink" title="Register Space"></a>Register Space</h1><p>Table 2-4 shows the AXI GPIO registers and their addresses.</p>
+<p><img src="https://s3.bmp.ovh/imgs/2022/05/23/c7cb914a3f029eb5.png" alt="image-20220504174900730"></p>
+<h2 id="具体的信息"><a href="#具体的信息" class="headerlink" title="具体的信息"></a>具体的信息</h2><h3 id="（1）AXI-GPIO-Data-Register-GPIOx-DATA"><a href="#（1）AXI-GPIO-Data-Register-GPIOx-DATA" class="headerlink" title="（1）AXI GPIO Data Register (GPIOx_DATA)"></a>（1）AXI GPIO Data Register (GPIOx_DATA)</h3><p>AXI GPIO 数据寄存器用于读取通用输入端口和写入通用输出端口。 当端口配置为输入时，写入 AXI GPIO 数据寄存器无效。</p>
+<p>GPIO 数据寄存器有两个（<font color='magenta'>GPIO_DATA </font>和 <font color='magenta'>GPIO2_DATA</font>），每个通道对应一个。 </p>
+<p>通道 1 数据寄存器 (GPIO_DATA) 始终存在；<font color='salmon'>仅当内核配置为双通道时，通道 2 数据寄存器 (GPIO2_DATA) 才存在。</font><strong>(Enable Dual Channel &#x3D; 1).</strong></p>
+<p>AXI GPIO 数据寄存器，<font color='red'>表 2-6 详细介绍了该寄存器的功能。</font></p>
+<p><img src="https://s3.bmp.ovh/imgs/2022/05/23/cd597a03dbf4f53e.png" alt="image-20220504200358476"></p>
+<h3 id="（2）AXI-GPIO-3-State-Control-Register-GPIOx-TRI"><a href="#（2）AXI-GPIO-3-State-Control-Register-GPIOx-TRI" class="headerlink" title="（2）AXI GPIO 3-State Control Register (GPIOx_TRI)"></a>（2）AXI GPIO 3-State Control Register (GPIOx_TRI)</h3><p><font color='salmon'>AXI GPIO 三态控制寄存器用于将端口动态配置为输入或输出。 </font></p>
+<p>当该寄存器中的某个位被设置时，相应的I&#x2F;O端口被配置为输入端口。 当一个位被清零时，对应的 I&#x2F;O 端口被配置为输出端口。</p>
+<p>有两个 AXI GPIO 三态控制寄存器（<font color='magenta'>GPIO_TRI </font>和<font color='magenta'> GPIO2_TRI</font>），每个通道对应一个。</p>
+<p> 仅当内核配置为双通道 <strong>Enable Dual Channel &#x3D; 1</strong> 时，通道 2 三态控制寄存器 (GPIO2_TRI) 才存在。</p>
+<p><font color='red'>AXI GPIO 三态控制寄存器的寄存器功能如表 2-7 所示。</font></p>
+<p><img src="https://s3.bmp.ovh/imgs/2022/05/23/3ce5ee9fbc6932f6.png" alt="image-20220504201857262"></p>
+<h1 id="Interrupts"><a href="#Interrupts" class="headerlink" title="Interrupts"></a>Interrupts</h1><p><font color='salmon'>AXI GPIO 内核可以在 <strong>Enable Interrupt</strong> 参数的控制下进行配置，以在任何通道输入中发生转换时生成电平中断。</font></p>
+<p> GPIO 接口模块包括中断检测逻辑，以识别通道输入上的任何转换。 </p>
+<p>当检测到转换时，它会指示给中断控制器模块。 </p>
+<p>中断控制器模块实现了必要的寄存器来启用和维护中断的状态。</p>
+<p>为了支持通道的中断功能，中断控制器模块实现了以下寄存器：</p>
+<p>（1）Global Interrupt Enable Register (GIER) —- 为处理器或中断控制器的中断输出提供主机启用&#x2F;禁用。</p>
+<p>（2）IP Interrupt Enable Register (IPIER) —- 为每个通道实现独立的中断使能位。</p>
+<p>（3）IP Interrupt Status Register (IPISR) —- 为每个通道实现独立的中断状态位。IP ISR 提供 Read 和 Toggle-On-Write 访问。</p>
+<p>Toggle-On-Write 机制允许中断服务例程使用单个写事务清除一个或多个 ISR 位。 也可以手动设置 IP ISR 以生成中断以进行测试。</p>
+<h2 id="Global-Interrupt-Enable-Register-GIER"><a href="#Global-Interrupt-Enable-Register-GIER" class="headerlink" title="Global Interrupt Enable Register (GIER)"></a>Global Interrupt Enable Register (GIER)</h2><p>全局中断启用寄存器为处理器的中断输出提供主启用&#x2F;禁用。 这是一个单比特读&#x2F;写寄存器，如图 2-3 所示。</p>
+<p> <font color='salmon'>该寄存器只有在设置了 Enable Interrupt 参数时才有效。</font></p>
+<p> <font color='red'>注意：</font>因为这是控制中断生成的主位，所以必须将其设置为生成中断，即使在 IP 中断启用寄存器 (IP IER) 中启用了中断也是如此。</p>
+<p> 全局中断使能寄存器的位定义如表 2-8 所示。</p>
+<p><img src="https://s3.bmp.ovh/imgs/2022/05/23/67a2cb55118adc0e.png" alt="image-20220504203857077"></p>
+<p><img src="https://s3.bmp.ovh/imgs/2022/05/23/7b6dcc05221bad7e.png" alt="image-20220504204238824"></p>
+<h2 id="IP-Interrupt-Enable-IPIER-and-IP-Status-Registers-IPISR"><a href="#IP-Interrupt-Enable-IPIER-and-IP-Status-Registers-IPISR" class="headerlink" title="IP Interrupt Enable (IPIER) and IP Status Registers (IPISR)"></a>IP Interrupt Enable (IPIER) and IP Status Registers (IPISR)</h2><p>IP 中断允许寄存器 (IPIER) 和 IP 中断状态寄存器 (IPISR)，如图 2-4 所示，为每个中断提供一个位。</p>
+<p><font color='salmon'> 这些寄存器只有在设置了 Enable Interrupt 参数时才有效。</font></p>
+<p><font color='red'> 重要提示</font>：IP 中断使能寄存器中的中断使能位与 IP 中断状态寄存器中的状态位一一对应。 </p>
+<p>中断事件由 AXI4-Lite 时钟记录在 IP 中断状态寄存器中，<font color='apricot'>因此输入端口的变化必须在至少一个时钟周期内保持稳定，以保证中断捕获。</font> </p>
+<p><font color='apricot'>每个 IPISR 寄存器位都可以通过 Toggle-On-Write 行为通过软件设置或清除。</font> </p>
+<p>IP 中断使能寄存器和 IP 中断状态寄存器的位定义分别在表 2-9 和表 2-10 中给出。</p>
+<p><img src="https://s3.bmp.ovh/imgs/2022/05/23/354dd10f47cac749.png" alt="image-20220504204903815"></p>
+<p><img src="https://s3.bmp.ovh/imgs/2022/05/23/8b2404c72aa91c06.png" alt="image-20220504204919951"></p>
+<p>Note 1. Toggle-On-Write (TOW) access toggles the status of the bit when a value of 1 is written to the corresponding bit.</p>
+<h1 id="Programming-Sequence"><a href="#Programming-Sequence" class="headerlink" title="Programming Sequence"></a>Programming Sequence</h1><p>通过以下步骤有助于访问 AXI GPIO 内核（写IDE的程序）。</p>
+<h2 id="对于启用中断时的输入端口，请执行以下步骤："><a href="#对于启用中断时的输入端口，请执行以下步骤：" class="headerlink" title="对于启用中断时的输入端口，请执行以下步骤："></a><font color='salmon'>对于启用中断时的输入端口，请执行以下步骤：</font></h2><p>1.将 GPIOx_TRI 寄存器中的相应位写入 1，将端口配置为输入。</p>
+<p>2.通过设置IP中断使能寄存器中的相应位来使能通道中断； 也可以通过将全局中断寄存器的第 31 位设置为 1 来启用全局中断。</p>
+<p>3.接收到中断时，读取 GPIOx_DATA 寄存器中的相应位。通过将值 1 写入相应位来清除 IP 中断状态寄存器中的状态。</p>
+<h2 id="对于未使能中断时的输入端口，请使用以下步骤："><a href="#对于未使能中断时的输入端口，请使用以下步骤：" class="headerlink" title="对于未使能中断时的输入端口，请使用以下步骤："></a><font color='salmon'>对于未使能中断时的输入端口，请使用以下步骤：</font></h2><p>1.通过将 GPIOx_TRI 寄存器中的相应位写入值为 1，将端口配置为输入。</p>
+<p>2.取 GPIOx_DATA 寄存器的对应位。</p>
+<h2 id="对于输出端口，使用以下步骤："><a href="#对于输出端口，使用以下步骤：" class="headerlink" title="对于输出端口，使用以下步骤："></a><font color='salmon'>对于输出端口，使用以下步骤：</font></h2><p>1.通过将 GPIOx_TRI 寄存器中的相应位写入值为 0，将端口配置为输出。</p>
+<p>2.写入 GPIOx_DATA 寄存器中的相应位。</p>
+<h1 id="The-Corresponding-Code"><a href="#The-Corresponding-Code" class="headerlink" title="The Corresponding Code"></a>The Corresponding Code</h1><h2 id="1-设置头文件"><a href="#1-设置头文件" class="headerlink" title="1.设置头文件"></a>1.设置头文件</h2><p><font color='blue'>#include “xgpio.h”</font></p>
+<h2 id="2-导入AXI-GPIO的器件ID"><a href="#2-导入AXI-GPIO的器件ID" class="headerlink" title="2.导入AXI_GPIO的器件ID"></a>2.导入AXI_GPIO的器件ID</h2><p><font color='blue'>#define GPIO_DEVICE_ID        XPAR_GPIO_0_DEVICE_ID</font></p>
+<h2 id="3-找AXI-GPIO的中断号"><a href="#3-找AXI-GPIO的中断号" class="headerlink" title="3.找AXI_GPIO的中断号"></a>3.找AXI_GPIO的中断号</h2><p><font color='blue'> #define INTC_GPIO_INTERRUPT_ID    XPAR_FABRIC_AXI_GPIO_0_IP2INTC_IRPT_INTR</font></p>
+<p>（ #define XPAR_FABRIC_AXI_GPIO_0_IP2INTC_IRPT_INTR 61U）<font color='green'>&#x2F;&#x2F;这里中断号为61</font></p>
+<p>具体的PS-PL的共享外设中断号看：Shared Peripheral Interrupts (SPI)，【UG585 7.2.3】</p>
+<p><img src="https://s3.bmp.ovh/imgs/2022/05/23/d74f676b7f9b7488.png" alt="image-20220511200348424"></p>
+<h2 id="4-设置通道"><a href="#4-设置通道" class="headerlink" title="4.设置通道"></a>4.设置通道</h2><p><font color='blue'>#define GPIO_CHANNEL1        1</font>    <font color='green'>&#x2F;&#x2F;因为AXI有两个通道</font></p>
+<h2 id="5-对AXI-GPIO进行初始化"><a href="#5-对AXI-GPIO进行初始化" class="headerlink" title="5.对AXI_GPIO进行初始化"></a>5.对AXI_GPIO进行初始化</h2><p><font color='blue'>XGpio_Initialize(XGpio * InstancePtr, u16 DeviceId)</font>    <font color='green'>&#x2F;&#x2F;根据提供的DeviceID去初始化XGpio的实例，里面包含了查找配置和初始化的函                                                                                                                          数，不需要在main中再次声明</font></p>
+<p>XGpio * InstancePtr：针对实例的指针，用时需加&amp;取地址符号</p>
+<p>u16 DeviceId：AXI_GPIO器件的ID</p>
+<p>如果函数中</p>
+<h2 id="6-对AXI-GPIO进行配置"><a href="#6-对AXI-GPIO进行配置" class="headerlink" title="6.对AXI_GPIO进行配置"></a>6.对AXI_GPIO进行配置</h2><h3 id="1-将端口配置为输入"><a href="#1-将端口配置为输入" class="headerlink" title="(1) 将端口配置为输入"></a>(1) 将端口配置为输入</h3><p><font color='blue'>XGpio_SetDataDirection(XGpio *InstancePtr, unsigned Channel, u32 DirectionMask)</font>    <font color='green'>&#x2F;&#x2F;将 GPIOx_TRI 寄存器中的相应位写入 1，将端口配置为输入。</font></p>
+<p>DirectionMask：是一个位掩码，指定哪些离散是输入和哪些是输出。 设置为 0 的位为输出，设置为 1 的位为输入。(value:0x00000001)</p>
+<h3 id="2-打开全局中断使能"><a href="#2-打开全局中断使能" class="headerlink" title="(2) 打开全局中断使能"></a>(2) 打开全局中断使能</h3><p><font color='blue'>XGpio_InterruptGlobalEnable(XGpio *InstancePtr)</font></p>
+<h3 id="3-打开通道中的信号对应的使能"><a href="#3-打开通道中的信号对应的使能" class="headerlink" title="(3) 打开通道中的信号对应的使能"></a>(3) 打开通道中的信号对应的使能</h3><p><font color='blue'>XGpio_InterruptEnable(XGpio *InstancePtr, u32 Mask)</font></p>
+<p>Mask：同上面的DirectionMask</p>
+<h2 id="7-设置中断系统"><a href="#7-设置中断系统" class="headerlink" title="7.设置中断系统"></a>7.设置中断系统</h2><p><font color='blue'>SetupInterruptSystem(XScuGic *GicInstancePtr, XGpioPs *AXI_Gpio, u16 AXI_GpioIntrId);</font></p>
+<h3 id="（1）查找GIC器件配置信息，并进行初始化"><a href="#（1）查找GIC器件配置信息，并进行初始化" class="headerlink" title="（1）查找GIC器件配置信息，并进行初始化"></a>（1）查找GIC器件配置信息，并进行初始化</h3><p><font color='blue'>IntcConfig &#x3D; XScuGic_LookupConfig(INTC_DEVICE_ID);</font><br><font color='blue'>XScuGic_CfgInitialize(GicInstancePtr, IntcConfig, IntcConfig-&gt;CpuBaseAddress);</font></p>
+<h3 id="（2）中断处理函数中“三板斧”"><a href="#（2）中断处理函数中“三板斧”" class="headerlink" title="（2）中断处理函数中“三板斧”"></a>（2）中断处理函数中“三板斧”</h3><p><font color='green'>&#x2F;&#x2F; 初始化ARM处理器异常语柄</font><br>    <font color='blue'>Xil_ExceptionInit();</font><br><font color='green'>&#x2F;&#x2F;来给IRQ异常注册处理程序</font><br>    <font color='blue'>Xil_ExceptionRegisterHandler(XIL_EXCEPTION_ID_INT, (Xil_ExceptionHandler)XScuGic_InterruptHandler, GicInstancePtr);</font><br><font color='green'>&#x2F;&#x2F;使能处理器的中断</font><br>    <font color='blue'>Xil_ExceptionEnableMask(XIL_EXCEPTION_IRQ);</font></p>
+<h3 id="（3）关联中断处理函数"><a href="#（3）关联中断处理函数" class="headerlink" title="（3）关联中断处理函数"></a>（3）关联中断处理函数</h3><p><font color='blue'>    XScuGic_Connect(IntcInstancePtr, IntrId,  (Xil_ExceptionHandler)GpioHandler, InstancePtr);</font></p>
+<h3 id="（4）为AXI-GPIO器件使能中断"><a href="#（4）为AXI-GPIO器件使能中断" class="headerlink" title="（4）为AXI_GPIO器件使能中断"></a>（4）为AXI_GPIO器件使能中断</h3><p><font color='blue'>XScuGic_Enable(XScuGic *InstancePtr, u32 Int_Id)</font>；</p>
+<h3 id="（5）设置中断的优先级和、触发类型"><a href="#（5）设置中断的优先级和、触发类型" class="headerlink" title="（5）设置中断的优先级和、触发类型"></a>（5）设置中断的优先级和、触发类型</h3><p>XScuGic_SetPriorityTriggerType(XScuGic *InstancePtr, u32 Int_Id, u8 Priority, u8 Trigger)；</p>
+<p><font color='green'>&#x2F;&#x2F;Priority是 IRQ 资源的新优先级。  0 是最高优先级，0xF8(248) 是最低优先级。 支持 32 个优先级，步长为 8。因此支持的优先级为 0、8、16、32、40 …、248。</font></p>
+<p><font color='green'>&#x2F;&#x2F;Trigger 触发器是 IRQ 资源的新触发器类型。每个位对描述一个 INT_ID 的配置。</font></p>
+<p><font color='red'>(SFI    Read Only    b10 always</font></p>
+<p><font color='red'>PPI    Read Only    depending on how the PPIs are configured.</font></p>
+<p>​                                <font color='red'>b01    Active HIGH level sensitive</font></p>
+<p>​                                <font color='red'>b11 Rising edge sensitive</font></p>
+<p><font color='red'>SPI                LSB is read only.</font></p>
+<p>​                                <font color='red'>b01    Active HIGH level sensitive</font></p>
+<p>​                                <font color='red'>b11 Rising edge sensitive)</font></p>
+<h1 id="实验要求"><a href="#实验要求" class="headerlink" title="实验要求"></a>实验要求</h1><p>本章的实验任务是通过调用 AXI GPIO IP 核，使用中断机制，实现正点原子xc7010领航者底板上 PL 端按键控制核心板上 PS 端 LED 的功能。</p>
+<h1 id="系统框图"><a href="#系统框图" class="headerlink" title="系统框图"></a>系统框图</h1><p><img src="https://s3.bmp.ovh/imgs/2022/05/23/c5678c57372cdaa0.png" alt="image-20220523101922480"></p>
+<h1 id="实现代码"><a href="#实现代码" class="headerlink" title="实现代码"></a>实现代码</h1><figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&quot;stdio.h&quot;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&quot;xparameters.h&quot;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&quot;xscugic.h&quot;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&quot;xgpiops.h&quot;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&quot;sleep.h&quot;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&quot;xgpio.h&quot;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> GPIO_DEVICE_ID		XPAR_XGPIOPS_0_DEVICE_ID<span class="comment">//the id information of gpio</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> AXI_GPIO_ID		XPAR_GPIO_0_DEVICE_ID<span class="comment">//the id information of axi gpio</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> INTC_DEVICE_ID		XPAR_SCUGIC_SINGLE_DEVICE_ID<span class="comment">//the id information of Gic</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> AXI_GPIO_INTERRUPT_ID	XPAR_FABRIC_AXI_GPIO_0_IP2INTC_IRPT_INTR<span class="comment">//AXI GPIO 的中断号是61</span></span></span><br><span class="line"></span><br><span class="line"><span class="comment">//the led on ps</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> MIO0_LED		0</span></span><br><span class="line"><span class="comment">//the key on pl</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> MIO12_KEY		12</span></span><br><span class="line"><span class="comment">//AXI GPIO channel1</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> GPIO_CHANNEL1		1</span></span><br><span class="line"></span><br><span class="line">XGpioPs_Config * ConfigPtr;</span><br><span class="line">XScuGic_Config *IntcConfig; <span class="comment">/* Instance of the interrupt controller */</span></span><br><span class="line"></span><br><span class="line">XGpioPs Gpio;</span><br><span class="line">XScuGic Intc;</span><br><span class="line">XGpio 	AXI_Gpio; <span class="comment">/* The Instance of the GPIO Driver */</span></span><br><span class="line"><span class="type">void</span> <span class="title function_">SetupInterruptSystem</span><span class="params">(XScuGic *GicInstancePtr, XGpio *AXI_Gpio, u16 AXI_GpioIntrId)</span>;</span><br><span class="line"><span class="type">void</span> <span class="title function_">IntrHandler</span><span class="params">()</span>;</span><br><span class="line">u32 key_press = <span class="number">0</span>;</span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">()</span>&#123;</span><br><span class="line">	u32 led_value = <span class="number">0</span>;</span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">&quot;GPIO AXI yyds!\n\r&quot;</span>);</span><br><span class="line"></span><br><span class="line">	<span class="comment">//初始化GPIO</span></span><br><span class="line">	<span class="comment">//根据器件的ID、查找器件的配置信息(配置PS端的GPIO)，初始化GPIO驱动</span></span><br><span class="line">	ConfigPtr = XGpioPs_LookupConfig(GPIO_DEVICE_ID);</span><br><span class="line">	XGpioPs_CfgInitialize(&amp;Gpio, ConfigPtr, ConfigPtr-&gt;BaseAddr);</span><br><span class="line">	<span class="comment">//对AXI GPIO进行初始化</span></span><br><span class="line">	XGpio_Initialize(&amp;AXI_Gpio, AXI_GPIO_ID);</span><br><span class="line"></span><br><span class="line">	<span class="comment">//把PS GPIO的方向设置成输出，并设置打开输出使能</span></span><br><span class="line">	XGpioPs_SetDirectionPin(&amp;Gpio, MIO0_LED, <span class="number">1</span>);</span><br><span class="line">	XGpioPs_SetOutputEnablePin(&amp;Gpio, MIO0_LED, <span class="number">1</span>);</span><br><span class="line"></span><br><span class="line">	<span class="comment">//对AXI GPIO的方向设置</span></span><br><span class="line">	XGpio_SetDataDirection(&amp;AXI_Gpio, GPIO_CHANNEL1, <span class="number">0x00000001</span>);<span class="comment">//把最低位设置为输入</span></span><br><span class="line"></span><br><span class="line">	<span class="comment">//设置中断系统</span></span><br><span class="line">	SetupInterruptSystem(&amp;Intc, &amp;AXI_Gpio, AXI_GPIO_INTERRUPT_ID);</span><br><span class="line">	<span class="comment">//写数据到GPIO的输出引脚(调用函数)</span></span><br><span class="line"></span><br><span class="line">	<span class="keyword">while</span>(<span class="number">1</span>)&#123;</span><br><span class="line">		<span class="keyword">if</span>(key_press)</span><br><span class="line">		&#123;</span><br><span class="line">			led_value = ~led_value;</span><br><span class="line">			key_press = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">			<span class="comment">//清楚中断缓存</span></span><br><span class="line">			XGpio_InterruptClear(&amp;AXI_Gpio, <span class="number">0x00000001</span>);</span><br><span class="line">			<span class="comment">//将产生中断的值写入GPIO端口</span></span><br><span class="line">			XGpioPs_WritePin(&amp;Gpio, MIO0_LED, led_value);</span><br><span class="line">			<span class="comment">//按键消抖，在下一次初始化来之前延时一段时间</span></span><br><span class="line">			usleep(<span class="number">200000</span>);</span><br><span class="line">			<span class="comment">//重新打开通道一中断使能</span></span><br><span class="line">			XGpio_InterruptEnable(&amp;AXI_Gpio, <span class="number">0x00000001</span>);</span><br><span class="line">		&#125;</span><br><span class="line">&#125;</span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">void</span> <span class="title function_">SetupInterruptSystem</span><span class="params">(XScuGic *GicInstancePtr, XGpio *AXI_Gpio,</span></span><br><span class="line"><span class="params">				u16 AXI_GpioIntrId)</span></span><br><span class="line">&#123;</span><br><span class="line">	<span class="comment">//查找GIC器件配置信息，并进行初始化</span></span><br><span class="line">	IntcConfig = XScuGic_LookupConfig(INTC_DEVICE_ID);</span><br><span class="line">	XScuGic_CfgInitialize(GicInstancePtr, IntcConfig, IntcConfig-&gt;CpuBaseAddress);</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">	<span class="comment">// 初始化ARM处理器异常语柄</span></span><br><span class="line">	Xil_ExceptionInit();</span><br><span class="line">	<span class="comment">//来给IRQ异常注册处理程序</span></span><br><span class="line">	Xil_ExceptionRegisterHandler(XIL_EXCEPTION_ID_INT, (Xil_ExceptionHandler)XScuGic_InterruptHandler, GicInstancePtr);</span><br><span class="line">	<span class="comment">//使能处理器的中断</span></span><br><span class="line">	Xil_ExceptionEnableMask(XIL_EXCEPTION_IRQ);</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">	<span class="comment">//关联中断处理函数</span></span><br><span class="line">	 XScuGic_Connect(GicInstancePtr, AXI_GpioIntrId,(Xil_ExceptionHandler)IntrHandler, (<span class="type">void</span> *)AXI_Gpio);</span><br><span class="line">	<span class="comment">/* Enable the interrupt for the AXI_GPIO device. */</span></span><br><span class="line">	XScuGic_Enable(GicInstancePtr, AXI_GpioIntrId);</span><br><span class="line">	<span class="comment">//0xA0:中断优先级，0x1是：中断类型是高电平有效</span></span><br><span class="line">	XScuGic_SetPriorityTriggerType(IntcInstancePtr, IntrId, <span class="number">0xA0</span>, <span class="number">0x3</span>);</span><br><span class="line">	<span class="comment">//打开AXI_GPIO IP的中断使能</span></span><br><span class="line">	XGpio_InterruptGlobalEnable(AXI_Gpio);<span class="comment">//打开全局中断</span></span><br><span class="line">	XGpio_InterruptEnable(AXI_Gpio, <span class="number">0x00000001</span>);<span class="comment">//打开通道信号对应的使能,把外设里面的中断打开</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">void</span> <span class="title function_">IntrHandler</span><span class="params">()</span>&#123;</span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">&quot;interrupt is coming\n\r&quot;</span>);</span><br><span class="line">	key_press = <span class="number">1</span>;</span><br><span class="line">	<span class="comment">//关闭通道1使能信号</span></span><br><span class="line">	XGpio_InterruptDisable(&amp;AXI_Gpio, <span class="number">0x00000001</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+
+
+]]></content>
+      <categories>
+        <category>ZYNQ</category>
+      </categories>
+      <tags>
+        <tag>AXI Interface</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>At-Speed Patterns and On-Chip Clock Controllers</title>
+    <url>/ic_backup/2024/07/15/At-Speed-Patterns-and-On-Chip-Clock-Controllers/</url>
+    <content><![CDATA[<h1 id="At-Speed-Patterns-and-On-Chip-Clock-Controllers"><a href="#At-Speed-Patterns-and-On-Chip-Clock-Controllers" class="headerlink" title="At-Speed Patterns and On-Chip Clock Controllers"></a><strong>At-Speed Patterns and On-Chip Clock Controllers</strong></h1><h2 id="0-Objectives"><a href="#0-Objectives" class="headerlink" title="0.Objectives"></a>0.Objectives</h2><p>本次学习的目标是可以为at-speed的ATPG创建patterns</p>
+<p>（1）可以完成Transition fault pattern的创建</p>
+<p>（2）可以完成path delay pattern的创建</p>
+<p>描述一下怎么去定义内部的clock去做atpg的</p>
+<p>了解IDDQ的pattern</p>
+<p><img src="https://cdn.jsdelivr.net/gh/Steve4ever/blog_pic/20240715230556.png" alt="image-20240715230555839"></p>
+<h2 id="1-What-is-the-at-speed-test"><a href="#1-What-is-the-at-speed-test" class="headerlink" title="1.What is the at speed test?"></a>1.What is the at speed test?</h2><p>​        在工艺节点在130nm以下的时候，很多情形下的物理缺陷都是由于延时来引起的。因此在对这种类型的chip做dft的时候，需要建立一个新的故障模型，称之为延时故障模型（time delay model）。解决的方法就是全速测试，所谓的全速测试就是让芯片工作在自己的高频时钟频率上，这个频率往往是要高过ATE*<font color='salmon'>[Automatic Test Equipment 自动测试机台]</font>*时钟的。这样对扫描模型的建立就提出了新的要求。即至少要保证芯片的launch clock和capture clock为芯片内部的高频率时钟。synopsys对此种问题的解决方法就是OCC（on chip clocking）。</p>
+]]></content>
+      <categories>
+        <category>Verilog</category>
+      </categories>
+      <tags>
+        <tag>DFT</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>CNN</title>
+    <url>/ic_backup/2022/06/08/CNN/</url>
+    <content><![CDATA[<h1 id="神经网络，深度学习，机器学习"><a href="#神经网络，深度学习，机器学习" class="headerlink" title="神经网络，深度学习，机器学习"></a>神经网络，深度学习，机器学习</h1><h2 id="1-神经网络"><a href="#1-神经网络" class="headerlink" title="1.神经网络"></a>1.神经网络</h2><p>神经网络，该模型灵感来自动物的中枢神经系统，通常呈现为相互连接的神经元，它可以对输入值通过反馈机制使得它们适应对应的输出。</p>
+<h2 id="2-深度学习"><a href="#2-深度学习" class="headerlink" title="2.深度学习"></a>2.深度学习</h2><p>深度学习是神经网络的进阶版，它的基本思路与神经网络类似，现在所说的深度学习大部分都是指神经网络，但往往比神经网络有着更复杂的结构以及优化算法，是神经网络的纵向延伸，常见的模型有CNN, RNN, LSTM等。</p>
+<h2 id="3-机器学习"><a href="#3-机器学习" class="headerlink" title="3.机器学习"></a>3.机器学习</h2><p>机器学习是一门多领域交叉学科，涉及概率论、统计学、逼近论、凸统计、算法复杂度理论等多门学科。专门研究计算机怎么模拟或实现人类的学习行为，以获取新的知识或技能，重新组已有的知识或技能，重新组织已有的知识结构使之不断改善自身的性能。</p>
+<p>机器学习是人工智能的一个分支，也是用来实现人工智能的一个有效手段。简单来说，机器学习就是通过算法，使得机器能从大量历史数据中学习规律，从而对新的样本做智能识别或对未来做预测。使用大量数据和算法来“训练”机器，由此带来机器学习如何完成任务。</p>
+<p> 机器学习主要分三种形式，监督学习、非监督学习、半监督学习。最常见的是监督学习中的分类问题。监督学习的训练样本都含有“标签”，非监督学习的训练样本中都不含“标签”，半监督学习介于监督学习和非监督学习之间。在监督学习中，因为训练集全部已经标记了，所以关注点通常是在未来测试数据上的性能。而在半监督学习的分类问题中，训练数据中包含未标记的数据。因此，存在两个不同的目标。一个是预测未来测试数据的类别，另一个是预测训练样本中未标记实例的类别。</p>
+<p>原文链接：<a href="https://www.zhihu.com/question/309493906/answer/1324746709">https://www.zhihu.com/question/309493906/answer/1324746709</a></p>
+<h3 id="监督学习"><a href="#监督学习" class="headerlink" title="监督学习"></a>监督学习</h3><p><font color='RedOrange'>监督学习的训练集要求包括输入输出</font>，也可以说是<u>特征和目标</u>。训练集中的目标是由人为标注的。监督学习最常见的是分类问题，通过已有的训练样本去训练得到一个最优模型，再利用这个模型将所有的输入映射为相应的输出，对输出进行简单的判断从而实现分类的目的。也就具有了对未知数据分类的能力。监督学习的目标往往是让计算机去学习已经创建好的分类系统。常见的有监督学习算法有：回归分析和统计分类。</p>
+<p>神经网络、深度学习区别： 这两个概念实际上是互相交叉的，例如，卷积神经网络（Convolutional neural networks，简称CNNs）就是一种深度的监督学习下的机器学习模型</p>
+<h3 id="非监督学习"><a href="#非监督学习" class="headerlink" title="非监督学习"></a>非监督学习</h3><p><font color='RedOrange'>非监督学习事先没有任何训练样本，而需要直接对数据进行建模。</font>样本数据类别未知，需要根据样本间的相似性对样本集进行分类，试图使类内差距最小化，类间差距最大化。通俗点来说，就是实际应用中不少情况下无法预先知道样本的标签，也就是说没有训练样本对应的类别，因而只能从原先没有样本标签的样本集开始学习分类器设计。非监督学习里典型的例子是聚类。聚类的目的在于把相似的东西聚在一起，而并不关心这一类是什么。</p>
+<h3 id="半监督学习"><a href="#半监督学习" class="headerlink" title="半监督学习"></a>半监督学习</h3><p><font color='RedOrange'>半监督学习所给的数据有的是有标签的，有的是没有标签的。</font>单独使用有标签的样本，能够生成有监督分类算法。单独使用无标签的样本，能够生成非监督聚类算法。两者都使用，希望在有标签的样本中加入无标签的样本，增强有监督分类的效果；同样的，希望在无标签的中加入有标签的样本，增强非监督聚类的效果。一般而言，半监督学习侧重于在有监督的分类算法中加入无标记样本来实现半监督分类。</p>
+<p>下图可以清楚看到他们之间的关系。</p>
+<p><img src="https://s3.bmp.ovh/imgs/2022/06/08/e9a892faf9cef22f.png" alt="image-20220608095709522"></p>
+]]></content>
+      <categories>
+        <category>FPGA</category>
+      </categories>
+      <tags>
+        <tag>CNNs</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Custom IP</title>
+    <url>/ic_backup/2022/05/23/Custom-IP/</url>
+    <content><![CDATA[<h1 id="1-Introduction"><a href="#1-Introduction" class="headerlink" title="1.Introduction"></a>1.Introduction</h1><p>在 Vivado 软件中，通过创建和封装 IP 向导的方式来自定义 IP 核，支持将当前工程、工程中的模块或者指定文件目录封装成 IP 核，当然也可以创建一个带有 AXI4 接口的 IP 核，用于 PS 和 PL 的数据通信。本次实验选择常用的方式，即创建一个带有 AXI 接口的 IP 核，该 IP 核通过 AXI 协议实现 PS 和 PL 的数据通信。AXI 协议是一种高性能、高带宽、低延迟的片内总线，关于该协议的详细内容，可以在我之前的篇节看到。</p>
+<span id="more"></span>
+
+<h2 id="系统框图"><a href="#系统框图" class="headerlink" title="系统框图"></a>系统框图</h2><p><img src="https://s3.bmp.ovh/imgs/2022/05/23/a9fc8ac60de288bc.png" alt="image-20220523103609234"></p>
+<p>框图中的 UART 用于打印信息，Breath LED IP 核为自定义的 IP 核，PS 通过 AXI 接口为 LED IP 模块发送配置数据，从而来控制 PL LED 灯。 （本实验基于正点原子ZYNQ嵌入式开发指南）</p>
+<h2 id="实验任务"><a href="#实验任务" class="headerlink" title="实验任务"></a>实验任务</h2><p>本章的实验任务是通过<font color='red'>自定义一个 LED IP 核</font>，来控制 PL LED 呈现呼吸灯的效果，并且 PS 可以通过AXI 接口来控制呼吸灯的开关和呼吸的频率。 </p>
+<h1 id="2-Hardware-Design"><a href="#2-Hardware-Design" class="headerlink" title="2.Hardware Design"></a>2.Hardware Design</h1><p>step1.创建一个新的ip核</p>
+<p><font color='blue'>1-1</font> 打开 Vivado，进入 Vivado 界面后，点击“Tasks”栏中的“Manage IP”。在弹出的选项中选择“New IP Location…”。</p>
+<p>1-2 在弹出的界面中选择“Next”，然后设置 Manage IP 核的属性，在“IP Location:”一栏指定工程的路径，路径为：F:&#x2F;ZYNQ&#x2F; Embedded_System&#x2F;custom_ip，其它保持默认即可。点击“Finish”完成 Manage IP工程的创建。</p>
+<p>1-3 工程创建完成后，运行创建和封装 IP 向导。点击菜单栏的“Tools”，选择“Create and Package New IP”，在弹出的界面中，点击“NEXT”。</p>
+<p>1-4 接下来选择封装 IP 或者创建一个带 AXI4 接口的 IP 核，我们这里选择创建一个带 AXI 接口的 IP核，选中“Creat a new AXI4 peripheral”，并点击“NEXT”按钮。因为我们实验任务是需要用到AXI总线去从PS端传数据到PL端。</p>
+<p>1-5 接下来分别设置 IP 核名称（Name）、版本号（Version）、显示名（Display name）、描述（Description）和路径（IP location）。在 Name 一栏设置 IP 核的名称，本次实验的功能是控制 PL LED 呈现呼吸灯的效果，因此这里在 Name 一栏，将名称改为“breath_led_ip”，此时 Display name 一栏会自动更改为 “breath_led_ip_v1.0”。其它的设置直接保持默认即可，点击“NEXT”按钮。</p>
+<p>1-6 接下来对 AXI 接口进行设置。</p>
+<p>Name（名称）：这里修改成 S0_AXI。</p>
+<p>Interface Tpye（接口类型）：共三种接口类型可选，分别是 Lite、Full 和 Stream。AXI4-Lite 接口是简化版的 AXI4 接口，用于较少数据量的存储映射通信；AXI4-Full 接口是高性能存储映射接口，用于较多数据量的存储映射通信；AXI4-Stream 用于高速数据流传输，非存储映射接口。本次实验只需少量数据的通信，因此接口类型选择默认的 Lite 接口。  </p>
+<p>Interface Mode（接口模式）：接口模式有 Slave（从机）和 Master（主机）两种模式可选，AXI 协议是主机和从机通过“握手”的方式建立连接，这里选择默认的 Slave 接口模式，因为AXI总线是在PL端接收PS端的数据，所以设置为Slave。 </p>
+<p>Data Width（数据宽度）：数据位宽保持默认，即 32 位位宽。</p>
+<p>Memory Size（存储器大小）： 在 AXI4-Lite 接口模式下，该选项不可设置。 </p>
+<p>Number of  Registers（寄存器数量）：用于配置 PL LED 呼吸灯寄存器的数量，这里保持默认，它的范围是[4-512],所以最低的也需要四个寄存器，但本次实验中我们只需要两个寄存器，剩下两个就可以先不用管。 </p>
+<p>点击“Next”按钮。 </p>
+<p>1-7 最后弹出封装接口的总结描述和下一步操作选项的界面。这里保持默认，即将 IP 添加至 IP 库中，点击“Finish”按钮完成 IP 核的创建和封装。</p>
+<p>1-8 创建好 IP 核后，我们接下来对 breath_led_ip_v1.0 IP 核进行编辑。右击 breath_led_ip_v1.0 IP 核，选择“Edit in IP Packager”，在弹出的界面中点击“OK”。</p>
+<p>打开 breath_led_ip_v1_0.v （顶层）文件后，接下来开始编辑代码，来添加控制 PL LED 呼吸灯所需要的参数和端口信号。</p>
+<p>1-9 在breath_led_ip_v1_0.v下有个AXI传输数据的子模块breath_led_ip_v1_0_S0_AXI ，它实现了 AXI4 协议下的读写寄存器的功能，我们只需要对该模块稍作修改，即可实现控制 PL LED 呼吸灯的功能。</p>
+<p>1-10 在此需要在子模块breath_led_ip_v1_0_S0_AXI下面建立呼吸灯模块，breath_led.v 文件用于实现呼吸灯的功能，点击“Create File ” 创 建 一 个 新 的 文 件 ， 在 弹 出 的 界 面 输 入 名 称 breath_led 路径放置在工程文件夹下面</p>
+]]></content>
+      <categories>
+        <category>ZYNQ</category>
+      </categories>
+      <tags>
+        <tag>ip</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>DDR</title>
+    <url>/ic_backup/2022/03/29/DDR/</url>
+    <content><![CDATA[<h1 id="DDR控制原理"><a href="#DDR控制原理" class="headerlink" title="DDR控制原理"></a>DDR控制原理</h1><h2 id="1-初识SDRAM"><a href="#1-初识SDRAM" class="headerlink" title="1. 初识SDRAM"></a>1. 初识SDRAM</h2><p>SDRAM: （Synchronous Dynamic Random Access Memory）,同步动态随机存储器。<u>同步是指其时钟频率与CPU前端总线的系统时钟频率相同，并且内部的命令的发送与数据的传输都以它为基准</u>;<u>动态是指存储阵列需要不断的刷新来保证数据不丢失</u>:<u>随机是指数据不是线性依次存储，而是自由指定地址进行数据的读写</u>。</p>
+<p>物理 Bank：传统内存系统为了保证 CPU 的正常工作，必须一次传输完 CPU 在一个传输周期内所需要的数据。而CPU 在一个传输周期能接受的数据容量就是 CPU 数据总线的位宽，单位是 bit（位）。当时控制内存与 CPU之间数据交换的芯片也因此将内存总线的数据位宽<u>等同于 CPU 数据总线的位宽</u>，而这个位宽就称之为物理 Bank（Physical Bank，Pbank）的位宽。</p>
+<p>芯片位宽：每一片SDRAM缓存芯片本身的位宽。但是芯片位宽不等于Pbank，一般芯片位宽会小于Pbank，所以在一台设备中，我们可以用多片SDRAM去匹配Pbank。</p>
+<h2 id="2-SDRAM基本结构"><a href="#2-SDRAM基本结构" class="headerlink" title="2. SDRAM基本结构"></a><strong>2. SDRAM基本结构</strong></h2><p>逻辑 Bank：（ Logical Bank，下文简称 L-Bank ）SDRAM内部存储空间划分的片区。如下图所示，为什么需要对内部空间进行划分呢，这涉及到两个概念RAS和CAS，由于每一行的激活都需要时间，如果不对内存空间进行划分，那么激活的时间会变长。</p>
+<blockquote>
+<p>RAS信号：（Row Address Strobe，行地址信号）<br>CAS信号：（Column Address Strobe，列地址信号）<br>内存工作时，在要读取或写入某数据，内存控制芯片会先把数据的列地址传送过去，这个RAS信号（Row Address Strobe，行地址信号）就被激活，而在转化到行数据前，需要经过几个执行周期，然后接下来CAS信号（Column Address Strobe，列地址信号）被激活。</p>
+</blockquote>
+<p>所以SDRAM不仅有行地址，列地址，还有一个bank地址。</p>
+<p><img src="https://gitee.com/steve4ever/pic/raw/master/20220329094422.png"></p>
+<p>每个地址单元的电路图如下所示，首先给一个信号让三极管导通，存储电容就可以充电或者放电，充电为写入，放电为读出，</p>
+<p><img src="https://gitee.com/steve4ever/pic/raw/master/20220329100407.png"></p>
+<h2 id="SDRAM的操作时序"><a href="#SDRAM的操作时序" class="headerlink" title="SDRAM的操作时序"></a><strong>SDRAM的操作时序</strong></h2><p>接口示意图，其中DQ表示数据位宽，每个SDRAM的位宽不一样。</p>
+<p><img src="https://gitee.com/steve4ever/pic/raw/master/20220329132757.png"></p>
+<p><img src="https://gitee.com/steve4ever/pic/raw/master/20220329103321.png"></p>
+<p><img src="https://gitee.com/steve4ever/pic/raw/master/20220329133032.png" alt="image-20220329133032726"></p>
+<p><img src="https://gitee.com/steve4ever/pic/raw/master/20220329133045.png" alt="image-20220329133045126"></p>
+<p>MIG IP核用户侧端口数量共 26个，当然我们不需要了解所有的信号，只需要了解实验要用到几组重要信号。下面将对这些信号逐一讲解并以表格的形式呈现给大家。为了与官方的文档保持一致，表中标明的信号的方向是以 MIG IP核作为参照的， 例如表格中的信号方向定义为输出 那么相对于用户端 FPGA来说实际上是输入。</p>
+]]></content>
+      <categories>
+        <category>FPGA</category>
+      </categories>
+      <tags>
+        <tag>DDR</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>K最近邻算法</title>
+    <url>/ic_backup/2022/08/12/K%E6%9C%80%E8%BF%91%E9%82%BB%E7%AE%97%E6%B3%95/</url>
+    <content><![CDATA[<p>K最近邻算法（K-Nearest Neighbors,KNN）</p>
+<p>原理</p>
+]]></content>
+      <categories>
+        <category>PYNQ</category>
+      </categories>
+      <tags>
+        <tag>python</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>FIFO</title>
+    <url>/ic_backup/2022/03/30/FIFO/</url>
+    <content><![CDATA[<h1 id="FIFO简介"><a href="#FIFO简介" class="headerlink" title="FIFO简介"></a><strong>FIFO简介</strong></h1><p>FIFO的英文全称是First In First Out，即先进先出。<font color='redorange'>FPGA使用的FIFO一般指的是对数据的存储具有先进先出特性的一个缓存器，</font><font color='magenta'>常被用于数据的缓存，</font>或者<font color='magenta'>高速异步数据的交互</font>也即<font color='magenta'>所谓的跨时钟域信号传递</font>。<font color='salmon'>它与FPGA内部的RAM和ROM的区别是没有外部读写地址线，采取顺序写入数据，顺序读出数据的方式，使用起来简单方便，</font>其数据地址由内部读写指针自动加1完成，由此带来的缺点就是不能像RAM和ROM那样可以由地址线决定读取或写入某个指定的地址。</p>
+<h2 id="同步-x2F-异步FIFO"><a href="#同步-x2F-异步FIFO" class="headerlink" title="同步&#x2F;异步FIFO"></a>同步&#x2F;异步FIFO</h2><p>1.同步FIFO：指读时钟和写时钟为同一个时钟，在时钟沿来临时同时发生读写操作。</p>
+<p>2.异步FIFO：指读写时钟不一致，读写时钟是互相独立的。</p>
+<p>Xilinx 的FIFO IP 核可以被配置为同步FIFO 或异步FIFO，其信号框图如下图所示。从图中可以了解到，<font color='salmon'>当被配置为同步FIFO 时，只使用 wr_clk，所有的输入输出信号都同步于wrclk 信号。</font><font color='each'>而当被配置为异步FIFO 时，写端口和读端口分别有独立的时钟，所有与写相关的信号都是同步于写时钟wr_clk，所有与读相关的信号都是同步于读时钟rdclk。</font></p>
+<img src="https://s3.bmp.ovh/imgs/2022/06/22/4658059710b487b5.png" alt="image-20220622113651743" style="zoom: 50%;" />
+
+<h2 id="FIFO的常见参数"><a href="#FIFO的常见参数" class="headerlink" title="FIFO的常见参数"></a>FIFO的常见参数</h2><p>FIFO 的宽度：FIFO 一次读写操作的数据位N； </p>
+<p>FIFO 的深度：FIFO 可以存储多少个宽度为N 位的数据。 </p>
+<p>空标志：empty。FIFO 已空时由 FIFO 的状态电路送出的一个信号，以阻止FIFO 的读操作继续从FIFO中读出数据而造成无效数据的读出。 </p>
+<p>将空标志：almost_ empty。FIFO 即将被读空。 </p>
+<p>满标志：full。FIFO 已满时由 FIFO 的状态电路送出的一个信号，以阻止FIFO 的写操作继续向 FIFO 中写数据而造成溢出。</p>
+<p>将满标志：almost_full。FIFO 即将被写满。 </p>
+<p>读时钟：<font color='salmon'>读FIFO 时所遵循的时钟，在每个时钟的上升沿触发。</font></p>
+<p> 这里请注意，“almost_ empty”和“almost_full”这两个信号分别被看作“empty”和“full”的警告信号，他们距离真正的空（empty）和满（full）都一个时钟的延时。本实验将使用这两个信号。 </p>
+<p>写时钟：<font color='salmon'>写FIFO 时所遵循的时钟，在每个时钟的上升沿触发。 </font></p>
+<p>这里请注意，“almost_empty”和“almost_full”这两个信号分别被看作“empty”和“full”的警告信号，他们相对于真正的空（empty）和满（full）都会提前一个时钟周期拉高。</p>
+<p><font color='salmon'>将读指针传递到写时钟域才能产生满信号，将写指针传递到读时钟域才能产生空信号，因此，这里就涉及到如何处理信号传输的亚稳态问题。</font></p>
+<h1 id="FIFO的功能"><a href="#FIFO的功能" class="headerlink" title="FIFO的功能"></a>FIFO的功能</h1><p> FIFO的功能类似于一个调节上下游水量的一个蓄水池。</p>
+<p><img src="https://s3.bmp.ovh/imgs/2022/06/22/5ca001549621553b.png" alt="img"></p>
+<p><strong>1.FIFO 的上游结点是FIFO的数据输入端,</strong></p>
+<p> 在写信号有效时,数据将被写入FIFO，由FIFO内部的写指针控制,并且在FIFO内部，写指针递增一个单元，同时FIFO的满信号(FIFO fulll Signal）将控制上游结点是否发送数据；</p>
+<p><strong>2.FIFO的下游节点是FIFO 的数据输出端，</strong></p>
+<p>当读信号有效时，FIFO中的数据将被读出，由FIFO内部的读指针控制，并且在FIFO内部读指针递增一个单元，同时FIFO空信号(FIFO empty Signal）将控制下游节点是否读出数据。</p>
+<p><strong>3.FIFO内部的空间已经被写满</strong></p>
+<p> 如果FIFO内部的空间已经被写满，则实时生成满信号，以反压上游节点，上游节点停止写新的数据进来，否则就会把已经写好的数据冲掉。</p>
+<p><strong>4.FIFO内部的数据全部被读</strong></p>
+<p>如果FIFO内部的数据全部被读，则实时生成空信号，控制下游节点不再进行数据读操作。否则，下游节点就会将读过的数据重新再读一遍。</p>
+<p><strong>5.FIFO用途：</strong> <font color='Salmon'>FIFO主要用来调节上下游数据的吞吐量。</font></p>
+<p><strong>6.FIFO空满状态的判断</strong></p>
+<p><strong>&#x3D;&#x3D;空状态:&#x3D;&#x3D;</strong></p>
+<p>当读写地址相等时，说明已经写入的数据，已经全部被读走，此时，FIFO还尚未有新的数据写入，说明FIFO为空。</p>
+<p><strong>空状态情况发生：</strong></p>
+<ul>
+<li>复位操作时，</li>
+<li>当读地址读出FIFO中最后一个字后，追赶上了写地址。</li>
+</ul>
+<p><strong>判断条件：</strong> </p>
+<p>​    如果两个指针的MSB相同，则说明两个指针折回的次数相等。其余位相等，说明FIFO为空。</p>
+<p><strong>&#x3D;&#x3D;满状态：&#x3D;&#x3D;</strong></p>
+<p>此时，读地址已经读过的地址空间，再一次被写地址写入。而读地址到最高地址之间的数据，还尚未被读。说明此时FIFO处于满的状态。</p>
+<p><strong>判断条件：</strong></p>
+<p>​    如果两个指针的最高有效位MSB不同，说明写指针比读指针多折回了一次;</p>
+<p>​    如r_addr&#x3D;0000，而w_addr &#x3D; 1000，为满。</p>
+<p><strong>&#x3D;&#x3D;区分满状态、空状态方法：&#x3D;&#x3D;</strong></p>
+<p>   <strong>在地址位中添加一个额外的位(extra bit)。</strong></p>
+<p>​    当写指针增加并越过最后一个FIFO地址时，就将写指针这个未用的MSB加1，其它位回零.</p>
+<p>​    对读指针也进行同样操作。</p>
+<p>此时，对于深度为2^n的FIFO，需要的读&#x2F;写指针位宽为(n + 1) 位</p>
+<p>例子：深度为8的FIFO，需要采用4bit的计数器， 0000～1000、 1001～1111，MSB作为折回标志位，而低3位作为地址指针。</p>
+<p>更多知识参考：<a href="https://blog.csdn.net/weixin_41788560/article/details/125339168">(44条消息) 同步电路与跨时钟域电路设计2——多bit信号的跨时钟域传输（FIFO）_桐桐花的博客-CSDN博客</a></p>
+<h1 id="FIFO使用二进制读写指针的问题及解决（格雷码）"><a href="#FIFO使用二进制读写指针的问题及解决（格雷码）" class="headerlink" title="FIFO使用二进制读写指针的问题及解决（格雷码）"></a>FIFO使用二进制读写指针的问题及解决（格雷码）</h1><p>跨时钟域的问题：由于读指针是属于读时钟域的，写指针是属于写时钟域的，而异步FIFO的读写时钟域不同，是异步的，要是将读时钟域的读指针与写时钟域的写指针不做任何处理直接比较肯定是错误的，因此我们需要进行同步处理以后仔进行比较<br><font color='RedOrange'>解决方法： 加两级寄存器同步 + 格雷码（目的都是消除亚稳态）</font></p>
+<p><strong>格雷码的特点：</strong></p>
+<ol>
+<li><p>格雷码相邻的2个数值之间只会有一位发生变化，其余各位都相同</p>
+</li>
+<li><p>格雷码是一种循环码，0和最大数(2的n次方减1)之间也只有一位不同</p>
+<p>用格雷码之后，相邻数值只有1位发生翻转，1位翻转所引起的亚稳态的概率远 远要小于几位同时翻转所引起的概率。因此，格雷码能很好的亚稳态出现的概率。</p>
+</li>
+</ol>
+<h2 id="什么是亚稳态"><a href="#什么是亚稳态" class="headerlink" title="什么是亚稳态"></a>什么是亚稳态</h2><p><strong>亚稳态(Metastable)：</strong>是指触发器无法在某个规定时间段内达到一个确定的状态。</p>
+<img src="https://s3.bmp.ovh/imgs/2022/06/22/fab70f4554c84540.png" alt="image-20220622204804059" style="zoom: 33%;" />
+
+<p><strong>亚稳态产生的原因：</strong>在FPGA的系统中，如果数据传输不满足触发器的T<del>su</del>（建立时间）和T<del>h</del>（保持时间），或者复位过程中复位信号的释放不满足有效时钟沿的恢复时间（recovery time），就有可能产生亚稳态。</p>
+<p><strong>深入浅出理解亚稳态：</strong>数字信号中，只有1和0，所以2V-5V代表逻辑电平1，0V-0.8V代表逻辑电平0，中间的0.8V-2V没有定义，不妨称之为<font color='orange'>“模糊电平”</font>。如果此时CLK突然产生了一个上升沿，“时钟门”相当于就被关闭了，A与B由于还没完成跳变，就处在了“模糊电平”，需要一定的时间才能恢复到明确定义的逻辑电平，此时就引起了亚稳态。</p>
+<p><strong>由于输入与clk的变化不同步而导致了亚稳态。所以从宏观角度来说，亚稳态的产生是由于输入的异步性。</strong></p>
+<h2 id="亚稳态的经典解决方案"><a href="#亚稳态的经典解决方案" class="headerlink" title="亚稳态的经典解决方案"></a>亚稳态的经典解决方案</h2><img src="https://s3.bmp.ovh/imgs/2022/06/22/41975b72b089ca93.png" alt="image-20220622210132857" style="zoom:50%;" />
+
+<p>知道了亚稳态产生的原因是由于输入的异步特性，所以解决的方法当然就是把输入同步化。经典解决方案就是在异步的输入后面接上两个同步的寄存器。</p>
+<p>解决亚稳态的代码</p>
+<figure class="highlight verilog"><table><tr><td class="code"><pre><span class="line"><span class="keyword">module</span> asy_to_syn(clk,rst_n,signal_in,signal_out);</span><br><span class="line"><span class="keyword">input</span> clk;</span><br><span class="line"><span class="keyword">input</span> rst_n;</span><br><span class="line"><span class="keyword">input</span> signal_in;</span><br><span class="line"><span class="keyword">output</span>  signal_out;</span><br><span class="line"><span class="keyword">reg</span> state_tmp0,state_tmp1;</span><br><span class="line"></span><br><span class="line"><span class="keyword">always</span>@(<span class="keyword">posedge</span> clk <span class="keyword">or</span> <span class="keyword">negedge</span> rst_n)</span><br><span class="line">    <span class="keyword">if</span>(!rst_n) <span class="keyword">begin</span></span><br><span class="line">        state_tmp0 &lt;= <span class="number">1&#x27;b0</span>;</span><br><span class="line">        state_tmp1 &lt;= <span class="number">1&#x27;b0</span>;</span><br><span class="line">    <span class="keyword">end</span></span><br><span class="line">    <span class="keyword">else</span> <span class="keyword">begin</span></span><br><span class="line">        state_tmp0 &lt;= signal_in;</span><br><span class="line">        state_tmp1 &lt;= state_tmp0;</span><br><span class="line">    <span class="keyword">end</span></span><br><span class="line"><span class="keyword">assign</span> signal_out = state_tmp1;</span><br><span class="line"><span class="keyword">endmodule</span></span><br></pre></td></tr></table></figure>
+
+<h1 id="设计FIFO深度"><a href="#设计FIFO深度" class="headerlink" title="设计FIFO深度"></a>设计FIFO深度</h1><p>设计之前要清楚：分析清楚数据轻载和重载时数据的传输任务<br>如果FIFO能在重载的时候满足需求，轻载的时候，肯定可以胜任。</p>
+<p><strong>FIFO深度计算总结：</strong> </p>
+<blockquote>
+<p>写时钟频率： WCLK     写时钟周期&#x3D;1&#x2F;WCLK<br>读时钟频率： RCLK      读时钟周期&#x3D;1&#x2F;RCLK<br>写时每B个时钟周期内会有 A个数据写入FIFO （写入效率A&#x2F;B）<br>读时每Y个时钟周期内会有 X个数据读出FIFO（读出效率X&#x2F;Y）</p>
+</blockquote>
+<img src="https://s3.bmp.ovh/imgs/2022/06/23/ce3caaec35995847.png" alt="image-20220623084642447" style="zoom: 33%;" />
+
+<p><font color='RedOrange'>连续传输数据的周期称为 burst长度：</font>burst_length表示这段时间写入的数据量</p>
+<p><font color='RedOrange'>burst的持续时间：</font>burst长度*写时钟周期 (burst_length &#x2F; WCLK)</p>
+<p><font color='RedOrange'>读的实际速度：</font>(RCLK*(X&#x2F;Y))，</p>
+<p><font color='RedOrange'>burst的持续时间这段时间读出的数据量：</font>burst的持续时间*读的实际速度</p>
+<p>​                     (burst_length &#x2F; WCLK )<em>(RCLK</em>(X&#x2F;Y))</p>
+<p><font color='RedOrange'>理论上的 FIFO的最小深度： </font>写入和读出两者之差为FIFO中残留的数据</p>
+<p>​            burst_length -  (burst_length &#x2F; WCLK )<em>(RCLK</em>(X&#x2F;Y))</p>
+<p>————————————————<br>原文链接：<a href="https://blog.csdn.net/weixin_41788560/article/details/125339168">https://blog.csdn.net/weixin_41788560/article/details/125339168</a></p>
+<h1 id="FIFO-IP核的使用"><a href="#FIFO-IP核的使用" class="headerlink" title="FIFO IP核的使用"></a><strong>FIFO IP核的使用</strong></h1><img src="https://s3.bmp.ovh/imgs/2022/06/22/f49924c6122fae96.png" alt="image-20220622172052887" style="zoom: 50%;" />
+
+<h1 id="异步FIFO程序设计"><a href="#异步FIFO程序设计" class="headerlink" title="异步FIFO程序设计"></a>异步FIFO程序设计</h1><figure class="highlight verilog"><table><tr><td class="code"><pre><span class="line"><span class="keyword">module</span> fifo_async#(</span><br><span class="line">                 <span class="keyword">parameter</span>   data_width = <span class="number">16</span>,</span><br><span class="line">                 <span class="keyword">parameter</span>   data_depth = <span class="number">256</span>,</span><br><span class="line">                 <span class="keyword">parameter</span>   addr_width = <span class="number">8</span></span><br><span class="line">)</span><br><span class="line">(</span><br><span class="line">                  <span class="keyword">input</span>                           rst,</span><br><span class="line">                  <span class="keyword">input</span>                           wr_clk,</span><br><span class="line">                  <span class="keyword">input</span>                           wr_en,</span><br><span class="line">                  <span class="keyword">input</span>      [data_width-<span class="number">1</span>:<span class="number">0</span>]     din,         </span><br><span class="line">                  <span class="keyword">input</span>                           rd_clk,</span><br><span class="line">                  <span class="keyword">input</span>                           rd_en,</span><br><span class="line">                  <span class="keyword">output</span> <span class="keyword">reg</span>                     valid,</span><br><span class="line">                  <span class="keyword">output</span> <span class="keyword">reg</span> [data_width-<span class="number">1</span>:<span class="number">0</span>]     dout,</span><br><span class="line">                  <span class="keyword">output</span>                          empty,</span><br><span class="line">                  <span class="keyword">output</span>                          full</span><br><span class="line">    );</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">reg</span>    [addr_width:<span class="number">0</span>]    wr_addr_ptr;<span class="comment">//地址指针，比地址多一位，MSB用于检测在同一圈</span></span><br><span class="line"><span class="keyword">reg</span>    [addr_width:<span class="number">0</span>]    rd_addr_ptr;</span><br><span class="line"><span class="keyword">wire</span>   [addr_width-<span class="number">1</span>:<span class="number">0</span>]  wr_addr;<span class="comment">//RAM 地址</span></span><br><span class="line"><span class="keyword">wire</span>   [addr_width-<span class="number">1</span>:<span class="number">0</span>]  rd_addr;</span><br><span class="line"></span><br><span class="line"><span class="keyword">wire</span>   [addr_width:<span class="number">0</span>]    wr_addr_gray;<span class="comment">//地址指针对应的格雷码</span></span><br><span class="line"><span class="keyword">reg</span>    [addr_width:<span class="number">0</span>]    wr_addr_gray_d1;</span><br><span class="line"><span class="keyword">reg</span>    [addr_width:<span class="number">0</span>]    wr_addr_gray_d2;</span><br><span class="line"><span class="keyword">wire</span>   [addr_width:<span class="number">0</span>]    rd_addr_gray;</span><br><span class="line"><span class="keyword">reg</span>    [addr_width:<span class="number">0</span>]    rd_addr_gray_d1;</span><br><span class="line"><span class="keyword">reg</span>    [addr_width:<span class="number">0</span>]    rd_addr_gray_d2;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">reg</span> [data_width-<span class="number">1</span>:<span class="number">0</span>] fifo_ram [data_depth-<span class="number">1</span>:<span class="number">0</span>];</span><br><span class="line"></span><br><span class="line"><span class="comment">//=========================================================write fifo </span></span><br><span class="line"><span class="keyword">genvar</span> i;</span><br><span class="line"><span class="keyword">generate</span> </span><br><span class="line"><span class="keyword">for</span>(i = <span class="number">0</span>; i &lt; data_depth; i = i + <span class="number">1</span> )</span><br><span class="line"><span class="keyword">begin</span>:fifo_init</span><br><span class="line"><span class="keyword">always</span>@(<span class="keyword">posedge</span> wr_clk <span class="keyword">or</span> <span class="keyword">posedge</span> rst)</span><br><span class="line">    <span class="keyword">begin</span></span><br><span class="line">       <span class="keyword">if</span>(rst)</span><br><span class="line">          fifo_ram[i] &lt;= <span class="number">&#x27;h0</span>;<span class="comment">//fifo复位后输出总线上是0，并非ram中真的复位。可无</span></span><br><span class="line">       <span class="keyword">else</span> <span class="keyword">if</span>(wr_en &amp;&amp; (~full))</span><br><span class="line">          fifo_ram[wr_addr] &lt;= din;</span><br><span class="line">       <span class="keyword">else</span></span><br><span class="line">          fifo_ram[wr_addr] &lt;= fifo_ram[wr_addr];</span><br><span class="line">    <span class="keyword">end</span>   </span><br><span class="line"><span class="keyword">end</span>    </span><br><span class="line"><span class="keyword">endgenerate</span>    </span><br><span class="line"><span class="comment">//========================================================read_fifo</span></span><br><span class="line"><span class="keyword">always</span>@(<span class="keyword">posedge</span> rd_clk <span class="keyword">or</span> <span class="keyword">posedge</span> rst)</span><br><span class="line">   <span class="keyword">begin</span></span><br><span class="line">      <span class="keyword">if</span>(rst)</span><br><span class="line">         <span class="keyword">begin</span></span><br><span class="line">            dout &lt;= <span class="number">&#x27;h0</span>;</span><br><span class="line">            valid &lt;= <span class="number">1&#x27;b0</span>;</span><br><span class="line">         <span class="keyword">end</span></span><br><span class="line">      <span class="keyword">else</span> <span class="keyword">if</span>(rd_en &amp;&amp; (~empty))</span><br><span class="line">         <span class="keyword">begin</span></span><br><span class="line">            dout &lt;= fifo_ram[rd_addr];</span><br><span class="line">            valid &lt;= <span class="number">1&#x27;b1</span>;</span><br><span class="line">         <span class="keyword">end</span></span><br><span class="line">      <span class="keyword">else</span></span><br><span class="line">         <span class="keyword">begin</span></span><br><span class="line">            dout &lt;=   <span class="number">&#x27;h0</span>;<span class="comment">//fifo复位后输出总线上是0，并非ram中真的复位，只是让总线为0；</span></span><br><span class="line">            valid &lt;= <span class="number">1&#x27;b0</span>;</span><br><span class="line">         <span class="keyword">end</span></span><br><span class="line">   <span class="keyword">end</span></span><br><span class="line"><span class="keyword">assign</span> wr_addr = wr_addr_ptr[addr_width-<span class="number">1</span>-:addr_width];</span><br><span class="line"><span class="keyword">assign</span> rd_addr = rd_addr_ptr[addr_width-<span class="number">1</span>-:addr_width];</span><br><span class="line"><span class="comment">//=============================================================格雷码同步化</span></span><br><span class="line"><span class="keyword">always</span>@(<span class="keyword">posedge</span> wr_clk )</span><br><span class="line">   <span class="keyword">begin</span></span><br><span class="line">      rd_addr_gray_d1 &lt;= rd_addr_gray;</span><br><span class="line">      rd_addr_gray_d2 &lt;= rd_addr_gray_d1;</span><br><span class="line">   <span class="keyword">end</span></span><br><span class="line"><span class="keyword">always</span>@(<span class="keyword">posedge</span> wr_clk <span class="keyword">or</span> <span class="keyword">posedge</span> rst)</span><br><span class="line">   <span class="keyword">begin</span></span><br><span class="line">      <span class="keyword">if</span>(rst)</span><br><span class="line">         wr_addr_ptr &lt;= <span class="number">&#x27;h0</span>;</span><br><span class="line">      <span class="keyword">else</span> <span class="keyword">if</span>(wr_en &amp;&amp; (~full))</span><br><span class="line">         wr_addr_ptr &lt;= wr_addr_ptr + <span class="number">1</span>;</span><br><span class="line">      <span class="keyword">else</span> </span><br><span class="line">         wr_addr_ptr &lt;= wr_addr_ptr;</span><br><span class="line">   <span class="keyword">end</span></span><br><span class="line"><span class="comment">//=========================================================rd_clk</span></span><br><span class="line"><span class="keyword">always</span>@(<span class="keyword">posedge</span> rd_clk )</span><br><span class="line">      <span class="keyword">begin</span></span><br><span class="line">         wr_addr_gray_d1 &lt;= wr_addr_gray;</span><br><span class="line">         wr_addr_gray_d2 &lt;= wr_addr_gray_d1;</span><br><span class="line">      <span class="keyword">end</span></span><br><span class="line"><span class="keyword">always</span>@(<span class="keyword">posedge</span> rd_clk <span class="keyword">or</span> <span class="keyword">posedge</span> rst)</span><br><span class="line">   <span class="keyword">begin</span></span><br><span class="line">      <span class="keyword">if</span>(rst)</span><br><span class="line">         rd_addr_ptr &lt;= <span class="number">&#x27;h0</span>;</span><br><span class="line">      <span class="keyword">else</span> <span class="keyword">if</span>(rd_en &amp;&amp; (~empty))</span><br><span class="line">         rd_addr_ptr &lt;= rd_addr_ptr + <span class="number">1</span>;</span><br><span class="line">      <span class="keyword">else</span> </span><br><span class="line">         rd_addr_ptr &lt;= rd_addr_ptr;</span><br><span class="line">   <span class="keyword">end</span></span><br><span class="line"></span><br><span class="line"><span class="comment">//========================================================== translation gary code</span></span><br><span class="line"><span class="keyword">assign</span> wr_addr_gray = (wr_addr_ptr &gt;&gt; <span class="number">1</span>) ^ wr_addr_ptr;</span><br><span class="line"><span class="keyword">assign</span> rd_addr_gray = (rd_addr_ptr &gt;&gt; <span class="number">1</span>) ^ rd_addr_ptr;</span><br><span class="line"></span><br><span class="line"><span class="keyword">assign</span> full = (wr_addr_gray == &#123;~(rd_addr_gray_d2[addr_width-:<span class="number">2</span>]),rd_addr_gray_d2[addr_width-<span class="number">2</span>:<span class="number">0</span>]&#125;) ;<span class="comment">//高两位不同</span></span><br><span class="line"><span class="keyword">assign</span> empty = ( rd_addr_gray == wr_addr_gray_d2 );</span><br><span class="line"></span><br><span class="line"><span class="keyword">endmodule</span></span><br></pre></td></tr></table></figure>
+
+<p>源代码：<a href="https://blog.csdn.net/alangaixiaoxiao/article/details/81432144">异步FIFO—Verilog实现_alangaixiaoxiao的博客-CSDN博客_异步fifo</a></p>
+]]></content>
+      <tags>
+        <tag>FIFO</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>LBP</title>
+    <url>/ic_backup/2022/07/11/LBP/</url>
+    <content><![CDATA[<h1 id="LBP-局部二值模式"><a href="#LBP-局部二值模式" class="headerlink" title="LBP(局部二值模式)"></a>LBP(局部二值模式)</h1><p>LBP（Local Binary Pattern，局部二值模式）是一种用来描述图像局部纹理特征的算子，具有旋转不变性和灰度不变性等显著优点。首先由T. Ojala, M.Pietikäinen, 和D. Harwood 在1994年提出，用于纹理特征提取。主要应用于人脸识别和目标检测中，OpenCV中有使用LBP特征进行人脸识别的接口，也有用LBP特征训练目标检测分类器的方法，Opencv实现了LBP特征的计算，但没有提供一个单独的计算LBP特征的接口。</p>
+<h1 id="原始LBP"><a href="#原始LBP" class="headerlink" title="原始LBP"></a>原始LBP</h1><p>在3×3的窗口中，以窗口中心像素为阈值，将相邻的8个像素的灰度值与其进行比较，若周围像素值大于中心像素值，则该像素点的位置被标记为1，否则为0。可以产生8位二进制数，将其转化为十进制数便得到了LBP编码（256种），如下图左上角开始遍历组成2进制数，转化为10进制后为124</p>
+<img src="https://s3.bmp.ovh/imgs/2022/07/11/31d1fe39f13cb6ae.png" alt="image-20220711153946722" style="zoom:67%;" />
+
+<p>具体的，其数学表达可写作：</p>
+<img src="https://s3.bmp.ovh/imgs/2022/07/11/08abb6107664cd0f.png" alt="image-20220711154018666" style="zoom: 67%;" />
+
+<p>其中， (x<del>c</del>,y<del>c</del>)为中心像素的坐标， p为邻域的第p个像素，i<del>p</del>为邻域像素的灰度值， i<del>c</del>为中心像素的灰度值， s(x)为符号函数，如下：</p>
+<img src="https://s3.bmp.ovh/imgs/2022/07/11/324cae2c75a79df6.png" alt="image-20220711154225042" style="zoom:67%;" />
+
+]]></content>
+      <categories>
+        <category>FPGA</category>
+      </categories>
+      <tags>
+        <tag>CNN</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>LCD-learning</title>
+    <url>/ic_backup/2022/03/25/LCD%20learning/</url>
+    <content><![CDATA[<h1 id="LCD-RGB设计"><a href="#LCD-RGB设计" class="headerlink" title="LCD-RGB设计"></a>LCD-RGB设计</h1><h2 id="1-LCD"><a href="#1-LCD" class="headerlink" title="1.LCD"></a>1.LCD</h2><p>LCD全称Liquid Crystal Display，即液晶显示屏，LCD的发光原理主要靠背光层，通过滤光片来的到我们想要的颜色，看到网上有个有意思的说法：“它特别像什么，就是你拿着一个白光手电筒，前面放个可以旋转的不透明板子，前面再放个彩色塑料薄膜”。</p>
+<h2 id="2、像素（pixel）"><a href="#2、像素（pixel）" class="headerlink" title="2、像素（pixel）"></a>2、像素（pixel）</h2><p>LCD 显示器都是由一个一个的像素点组成，像素点就类似一个灯(在OLED 显示器中，像素点就是一个小灯)，这个小灯是 RGB 灯，也就是由R(红色)、G(绿色)和B(蓝色)这三种颜色组成的，而 RGB 就是光的三原色。 </p>
+<h2 id="3、分辨率"><a href="#3、分辨率" class="headerlink" title="3、分辨率"></a>3、分辨率</h2><p>提起 LCD显示器，我们都会提到显示器分辨率。1080P 的意思就是一个LCD 屏幕上的像素数量是1920*1080 个，也就是这个屏幕有1920列（长），每列有1080 个像素点（宽），所以一共有1920×1080&#x3D;2073600 个像素点。</p>
+<p><strong>常用：720P（1280×720）、1080P（1920×1080）、2K（2048×1080）或 4K（4096×2160）</strong></p>
+<h2 id="4、像素格式"><a href="#4、像素格式" class="headerlink" title="4、像素格式"></a>4、像素格式</h2><p>一个像素点就相当于一个RGB 小灯，通过控制 R、G、B 这三种颜色的亮度就可以显示出各种各样的色彩。那该如何控制 R、G、B 这三种颜色的显示亮度呢？一般一个R、G、B 这三部分分别使用 8bit 的数据，那么一个像素点就是8bit*3&#x3D;24bit，也就是说一个像素点 3 个字节，这种像素格式称为 RGB888。当然常用的像素点格式还有RGB565，只需要两个字节，但在色彩鲜艳度上较差一些。我们达芬奇开发板上的RGB-LCD 接口采用的 RGB888 的像素格式，共需要 24 位，每一位对应RGB 的颜色分量如下图所示：</p>
+]]></content>
+  </entry>
+  <entry>
+    <title>MMCM/PLL</title>
+    <url>/ic_backup/2022/06/27/MMCM-PLL/</url>
+    <content><![CDATA[<h1 id="CMT"><a href="#CMT" class="headerlink" title="CMT"></a>CMT</h1><p>Xilinx 7 系列器件中具有时钟管理单元 CMT 时钟资源，xc7a35t 芯片内部有5 个CMT，xc7a100t 芯片内部有 6 个CMT，为设备提供强大的系统时钟管理以及高速 I&#x2F;O 通信的能力。Xilinx 7 系列器件中的时钟资源包含了时钟管理单元 CMT，每个CMT 由一个MMCM 和一个PLL 组成。时钟管理单元 CMT 的总体框图如下图所示。 </p>
+<img src="https://s3.bmp.ovh/imgs/2022/06/27/7eeba4907f16234b.png" alt="image-20220627112817428" style="zoom: 33%;" />
+
+<p><strong>MMCM&#x2F;PLL 的参考时钟输入</strong>：</p>
+<p> IBUFG(CC)即具有时钟能力的 IO 输入、区域时钟 BUFR、全局时钟 BUFG、GT 收发器输出时钟、行时钟 BUFH 以及本地布线。</p>
+<p>在最多的情况下，<font color='orange'>MMCM&#x2F;PLL 的参考时钟输入都是来自IBUFG(CC)即具有时钟能力的 IO 输入，</font><font color='RedOrange'>MMCM&#x2F;PLL 的输出可以驱动全局时钟BUFG 和行时钟BUFH 等等。</font>BUFG 能够驱动整个器件内部的通用逻辑的所有时序单元的时钟端口。</p>
+<h1 id="PLL"><a href="#PLL" class="headerlink" title="PLL"></a>PLL</h1><h2 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h2><p>全称：Phase Locked Loop，即锁相环，是一种反馈控制电路。PLL 对时钟网络进行系统级的时钟管理和偏移控制，具有时钟倍频、分频、相位偏移和可编程占空比的功能。</p>
+<h2 id="锁相环的特点及应用"><a href="#锁相环的特点及应用" class="headerlink" title="锁相环的特点及应用"></a>锁相环的特点及应用</h2><p>锁相环作为一种反馈控制电路，其特点是利用外部输入的参考信号控制环路内部震荡信号的频率和相位。因为锁相环可以实现输出信号频率对输入信号频率的自动跟踪，所以锁相环通常用于闭环跟踪电路。</p>
+<h2 id="锁相环的来历"><a href="#锁相环的来历" class="headerlink" title="锁相环的来历"></a>锁相环的来历</h2><p>锁相环在工作的过程中，当输出信号的频率与输入信号的频率相等时，输出电压与输入电压保持固定的相位差值，即输出电压与输入电压的相位被锁住，这就是锁相环名称的由来。 </p>
+<h2 id="锁相环的组成"><a href="#锁相环的组成" class="headerlink" title="锁相环的组成"></a>锁相环的组成</h2><p>PLL 由以下几部分组成：<u>前置分频计数器（D 计数器）、相位频率检测器（PFD，Phase-Frequency Detector）电路、电荷泵（Charge Pump）、环路滤波器（Loop Filter）、压控振荡器（VCO，Voltage Controlled Oscillator）、反馈乘法器计数器（M 计数器）和后置分频计数器（O1-O6 计数器）</u>。</p>
+<h2 id="锁相环具体的工作原理"><a href="#锁相环具体的工作原理" class="headerlink" title="锁相环具体的工作原理"></a>锁相环具体的工作原理</h2><p>在工作时，PFD 检测其参考频率（F<del>REF</del>）和反馈信号（Feedback）之间的相位差和频率差，控制电荷泵和环路滤波器将相位差转换为控制电压；V<del>CO</del> 根据不同的控制电压产生不同的震荡频率，从而影响Feedback信号的相位和频率。在F<del>REF</del> 和 Feedback 信号具有相同的相位和频率之后，就认为PLL 处于锁相的状态。<br>在反馈路径中插入M计数器会使V<del>CO</del>的震荡频率是F<del>REF</del>信号频率的M倍，F<del>REF</del>信号等于输入时钟（F<del>IN</del>）除以预缩放计数器（D）。</p>
+<p>参考频率用以下方程描述：F<del>REF</del>&#x3D; F<del>IN</del>&#x2F;D，VCO 输出频率为 F<del>VCO</del>&#x3D; F<del>IN</del>×M&#x2F;D，PLL的输出频率为F<del>OUT</del>&#x3D;（F<del>IN</del>×M）&#x2F;（N×O）。 </p>
+<h1 id="MMCM"><a href="#MMCM" class="headerlink" title="MMCM"></a>MMCM</h1><p>MMCM（Mixed-Mode Clock Manager）混合模式时钟管理器，MMCM 功能是PLL 的超集，<font color='Salmon'>它是在PLL的基础上加了相位动态调整功能</font>，PLL 是模拟的，而动态调相是数字电路，所以称为混合模式。其相对于PLL 的优势是相位可以动态调整，占用面积较大。MMCM 主要用于驱动器件逻辑（CLB、DSP、RAM 等）的时钟。PLL 是和 IO 资源紧密绑定的，占用面积小，常用于为内存接口生成所需的时钟信号，但也具有与其他器件逻辑的连接，因此如果需要额外的功能，它们可以用作额外的时钟资源。</p>
+<p><strong>Xilinx 提供了用于实现时钟功能的 IP 核Clocking Wizard，该IP 核能够根据用户的时钟需求自动配置器件内部的CMT，以实现用户的时钟需求。</strong></p>
+<p>Xilinx 官方的手册文档 “<strong>PG065</strong>，Clocking Wizard v5.2 LogiCORE IP Product Guide”。</p>
+<h1 id="硬件设计"><a href="#硬件设计" class="headerlink" title="硬件设计"></a>硬件设计</h1><p>本章实验将Clocking Wizard IP 核产生的4 个时钟100MHz、100MHz_180deg 、50MHz、25MHz，连接到 扩展口IO 上。 </p>
+<p>PLL&#x2F;MMCM实验中，可以将其理解为：外部时钟连接到具有时钟能力的输入引脚CCIO（Clock-Capable Input），进入MMCM&#x2F;PLL，产生不同频率和不同相位的时钟信号，然后驱动全局时钟资源BUFG。</p>
+<p>具体实验部分参照</p>
+]]></content>
+      <categories>
+        <category>FPGA</category>
+      </categories>
+      <tags>
+        <tag>PLL</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>MobileNet</title>
+    <url>/ic_backup/2022/08/29/MobileNet/</url>
+    <content><![CDATA[<p>推荐一个入门MobileNet的文章</p>
+<p><a href="https://zhuanlan.zhihu.com/p/70703846">https://zhuanlan.zhihu.com/p/70703846</a></p>
+]]></content>
+      <categories>
+        <category>CNN</category>
+      </categories>
+      <tags>
+        <tag>精简网络模型</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>python各种有用文档总结</title>
+    <url>/ic_backup/2022/08/07/python%E5%90%84%E7%A7%8D%E6%9C%89%E7%94%A8%E6%96%87%E6%A1%A3%E6%80%BB%E7%BB%93/</url>
+    <content><![CDATA[<p><strong>1.python的官方文档</strong></p>
+<p><a href="https://docs.python.org/3/">3.10.6 Documentation (python.org)</a></p>
+<p><strong>2.python标准库函数（import）</strong></p>
+<p><a href="https://docs.python.org/zh-cn/3.11/library/">Python 标准库 — Python 3.11.0b5 文档</a></p>
+<p><strong>3.python内置函数</strong></p>
+<p><a href="https://www.runoob.com/python/python-built-in-functions.html">Python 内置函数 | 菜鸟教程 (runoob.com)</a></p>
+<p><strong>4.PYNQ-Z2设置指南</strong></p>
+<p><a href="https://pynq.readthedocs.io/en/latest/getting_started/pynq_z2_setup.html#pynqz2-board-setup">PYNQ-Z2 Setup Guide — Python Productivity for Zynq （Pynq）</a></p>
+<p><strong>5.PYNQ镜像下载</strong></p>
+<p><a href="https://github.com/Xilinx/PYNQ/releases">https://github.com/Xilinx/PYNQ/releases</a></p>
+<p><strong>6.Python 扩展包的非官方 Windows</strong> </p>
+<p><a href="https://www.lfd.uci.edu/~gohlke/pythonlibs/">Archived: Python Extension Packages for Windows - Christoph Gohlke (uci.edu)</a></p>
+<p><strong>7.清华大学开源软件镜像站</strong></p>
+<p><a href="https://mirrors.tuna.tsinghua.edu.cn/">清华大学开源软件镜像站 | Tsinghua Open Source Mirror</a></p>
+<p><strong>8.python图像处理常用库讲解</strong></p>
+<ul>
+<li><p>numpy库</p>
+<p><a href="https://blog.csdn.net/a373595475/article/details/79580734">(52条消息) Python之Numpy详细教程_cs_程序猿的博客-CSDN博客_numpy python</a></p>
+</li>
+<li><p>matplotlib.pyplot库</p>
+<p><a href="https://blog.csdn.net/Notzuonotdied/article/details/77876080">(52条消息) Python Matplotlib简易教程_Notzuonotdied的博客-CSDN博客_pythonmatplotlib</a></p>
+<p>官方文档：</p>
+<p><a href="https://matplotlib.org/stable/index.html">Matplotlib documentation — Matplotlib 3.5.2 documentation</a></p>
+</li>
+<li><p>PIL库</p>
+<p><a href="http://www.zzvips.com/article/226208.html">Python 图像处理之PIL库详解用法_Python_脚本之家 (zzvips.com)</a></p>
+</li>
+<li><p>scipy.io(读matlab的.mat文件)</p>
+<p><a href="https://scipy.github.io/devdocs/reference/generated/scipy.io.loadmat.html">scipy.io.loadmat — SciPy v1.10.0.dev0+1624.549d000 Manual</a></p>
+</li>
+</ul>
+]]></content>
+      <categories>
+        <category>CNN</category>
+      </categories>
+      <tags>
+        <tag>python</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>innovus import design</title>
+    <url>/ic_backup/2024/07/22/innovus-import-design/</url>
+    <content><![CDATA[<h1 id="innovus环境的设置"><a href="#innovus环境的设置" class="headerlink" title="innovus环境的设置"></a>innovus环境的设置</h1><h2 id="1-00-common-initial-settings-tcl"><a href="#1-00-common-initial-settings-tcl" class="headerlink" title="1. 00_common_initial_settings.tcl"></a>1. 00_common_initial_settings.tcl</h2><figure class="highlight tcl"><table><tr><td class="code"><pre><span class="line"><span class="comment">#### design information设计的顶层名字</span></span><br><span class="line"><span class="keyword">set</span> design <span class="string">&quot;leon&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment">### design data directory数据和报告放的位置</span></span><br><span class="line"><span class="keyword">set</span> data_root    <span class="string">&quot;./data&quot;</span></span><br><span class="line"><span class="keyword">set</span> reports_root <span class="string">&quot;./reports&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment">### gate level netlist files 所需要导入网表的路径</span></span><br><span class="line"><span class="keyword">set</span> import_netlists <span class="string">&quot;&quot;</span></span><br><span class="line"><span class="keyword">lappend</span> import_netlists <span class="string">&quot;data/00_input/$&#123;design&#125;.vnet.gz&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment">### SDC files</span></span><br><span class="line"></span><br><span class="line"><span class="comment">### UPF files</span></span><br><span class="line"></span><br><span class="line"><span class="comment">### tech lef</span></span><br><span class="line"><span class="keyword">set</span> tech_lef <span class="string">&quot;/foundry/tmic/xxx/tech/tlef/gsclib045_tech.lef&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment">### library files 物理lef的库，analog给出</span></span><br><span class="line"><span class="keyword">set</span> lef_files <span class="string">&quot;&quot;</span> ##使用这种tcl的形式可以在该变量中加入多个库文件</span><br><span class="line"><span class="keyword">lappend</span> lef_files <span class="string">&quot;/analog/library/hard_marco0/xxx.lef&quot;</span></span><br><span class="line"><span class="keyword">lappend</span> lef_files <span class="string">&quot;/analog/library/hard_marco1/xxx.lef&quot;</span></span><br><span class="line"><span class="keyword">lappend</span> lef_files <span class="string">&quot;/analog/library/hard_marco2/xxx.lef&quot;</span></span><br><span class="line"><span class="keyword">lappend</span> lef_files <span class="string">&quot;/analog/library/hard_marco3/xxx.lef&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment">### PEX tech 抽取rc的tech file</span></span><br><span class="line"><span class="keyword">set</span> qrc_tech(rcbest) <span class="string">&quot;/tech/qrc/rcbest/qrcTechFile&quot;</span></span><br><span class="line"><span class="keyword">set</span> qrc_tech(rcworst) <span class="string">&quot;/tech/qrc/rcworst/qrcTechFile&quot;</span></span><br><span class="line"><span class="keyword">set</span> qrc_tech(typical) <span class="string">&quot;/tech/qrc/typical/qrcTechFile&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment">### view (scenarios) of each step</span></span><br><span class="line"><span class="keyword">set</span> default_scenarios <span class="string">&quot;func_slow_rcworst&quot;</span></span><br><span class="line"><span class="keyword">set</span> placeopt_scenarios <span class="string">&quot;func_slow_rcworst&quot;</span></span><br><span class="line"><span class="keyword">set</span> cts_scenarios <span class="string">&quot;cts_slow_rcworst&quot;</span></span><br><span class="line"><span class="keyword">set</span> clockopt_scenarios <span class="string">&quot;func_slow_rcworst func_fast_rcbest&quot;</span></span><br><span class="line"><span class="keyword">set</span> routeopt_scenarios <span class="string">&quot;func_slow_rcworst func_fast_rcbest&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#cells type settings</span></span><br><span class="line"><span class="keyword">set</span> fillers_ref <span class="string">&quot;FILL1 FILL16 FILL2&quot;</span></span><br><span class="line"><span class="keyword">set</span> welltap_ref <span class="string">&quot;DECAP8&quot;</span></span><br><span class="line"><span class="comment">#### END</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="2-01-innovus-import-tcl"><a href="#2-01-innovus-import-tcl" class="headerlink" title="2. 01_innovus_import.tcl"></a>2. 01_innovus_import.tcl</h2><p>Description: read gate level netlist into innovus</p>
+<figure class="highlight tcl"><table><tr><td class="code"><pre><span class="line"><span class="keyword">source</span> script/<span class="number">00</span>_common_initial_settings.tcl</span><br><span class="line"><span class="keyword">source</span> script/zhenyu_procs.tcl</span><br><span class="line"></span><br><span class="line"><span class="comment">### variables</span></span><br><span class="line"><span class="keyword">set</span> current_step <span class="string">&quot;01_innovus_import&quot;</span></span><br></pre></td></tr></table></figure>
+
+]]></content>
+      <categories>
+        <category>Verilog</category>
+      </categories>
+      <tags>
+        <tag>backend</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>.vimrc config</title>
+    <url>/ic_backup/2024/06/06/vimrc-config/</url>
+    <content><![CDATA[<p>刚开始接触到数字ic肯定少不了接触vimrc，他是vcs的配置工具，使用指令gvim ~&#x2F;.vimrc来开启首次配置之旅</p>
+]]></content>
+      <categories>
+        <category>Verilog</category>
+      </categories>
+      <tags>
+        <tag>数字IC</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>分频器</title>
+    <url>/ic_backup/2022/09/11/%E5%88%86%E9%A2%91%E5%99%A8/</url>
+    <content><![CDATA[<h1 id="分频器设计"><a href="#分频器设计" class="headerlink" title="分频器设计"></a>分频器设计</h1><ul>
+<li>分频：将一个时钟N分频，则分频等到的时钟频率为原时钟的1&#x2F;N，而周期为原时钟周期的N倍。</li>
+<li>3种分频： 偶数分频：如6分频，10分频等；<br>              奇数分频：如3分频，7分频等;<br>              小数分频：如1.5分频、3.22分频等。</li>
+<li>分频的方法：通过计数器实现或者使用PLL IP核实现</li>
+</ul>
+<h2 id="1-偶数分频"><a href="#1-偶数分频" class="headerlink" title="1.偶数分频"></a>1.偶数分频</h2><p>概念：偶分频电路指的是分频系数为 2、4、6、8 … 2n 等偶数整数的分频电路，这种是比较简单的分频方式，并且其中的几分频<font color='RedOrange'>一般指的是占空比50%的分频，</font>比如6分频就是3个高电平，3个低电平。</p>
+<p>方法：用D触发器输出取反的方式，就能实现简单的二分频。</p>
+<p><img src="https://cdn.jsdelivr.net/gh/Steve4ever/blog_pic/20240715224224.png" alt="image-20240715224224704"></p>
+]]></content>
+      <categories>
+        <category>Verilog</category>
+      </categories>
+      <tags>
+        <tag>basement</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>在Vitis中快速创建工程</title>
+    <url>/ic_backup/2022/05/23/%E5%9C%A8vitis%E4%B8%AD%E5%BF%AB%E9%80%9F%E5%88%9B%E5%BB%BA%E5%B7%A5%E7%A8%8B/</url>
+    <content><![CDATA[<p>我发现在2018版本中可以直接生成hdk，并打开，但是在2019.2版本中开始就没有SDK了，生成的文件名后缀是xsa，需要我们单独在Vitis上创建应用工程。</p>
+<p>下面我学习了一种简单的将xsa文件添加到vitis中，并创建工程，和大家分享一下。</p>
+<p><font color='blue'>1.生成.xsa文件：在file中导出Hardware。</font></p>
+<img src="https://s3.bmp.ovh/imgs/2022/05/23/5f399443178d9e4f.png" alt="image-20220523214255441" style="zoom: 50%;" />
+
+<p><font color='blue'>2.当程序涉及PL端的应用时，就需要勾选Include bitstream，如果只涉及PS端，就不需勾选。然后点击ok生成 .xsa文件。</font></p>
+<img src="https://s3.bmp.ovh/imgs/2022/05/23/a7ecbabfd4d53437.png" alt="image-20220523214404722" style="zoom: 50%;" />
+
+<p><font color='blue'>3.在Tools中选择Launch Vitis。</font></p>
+<img src="https://s3.bmp.ovh/imgs/2022/05/24/ac2480070e6eaf14.png" alt="image-20220523214645818" style="zoom: 50%;" />
+
+<p>4.在打开的Vitis后，选择工程存放文件夹，点击Launch。</p>
+<img src="https://s3.bmp.ovh/imgs/2022/05/24/ecf44258ae0d6e01.png" alt="image-20220523214826202" style="zoom:67%;" />
+
+<p>5.选择Create Application Project</p>
+<img src="https://s3.bmp.ovh/imgs/2022/05/24/693a702bf18cf7d6.png" alt="image-20220523214927714" style="zoom:67%;" />
+
+<p>6.输入Project name，点击next。</p>
+<img src="https://s3.bmp.ovh/imgs/2022/05/24/654dd92daf63ef54.png" alt="image-20220523215039030" style="zoom:67%;" />
+
+<p>7.在第二栏中点击加号选择刚刚生成的.xsa文件，然后next，选择建立Empty Application文件，然后点击Finish。</p>
+<img src="https://s3.bmp.ovh/imgs/2022/05/24/ceb21d75c8bad345.png" alt="image-20220523215149910" style="zoom:67%;" />
+
+<img src="https://s3.bmp.ovh/imgs/2022/05/24/56e42b15be533345.png" alt="image-20220523215304678" style="zoom:67%;" />
+
+<img src="https://s3.bmp.ovh/imgs/2022/05/24/3f368b0918b953ab.png" alt="image-20220523215421788" style="zoom:50%;" />
+
+<p>8.完成工程创建，在src文件夹下建立main.c文件。添加调试程序。</p>
+<img src="https://s3.bmp.ovh/imgs/2022/05/24/13f9e721611b73cf.png" alt="image-20220523215620346" style="zoom:67%;" />]]></content>
+      <categories>
+        <category>ZYNQ</category>
+      </categories>
+      <tags>
+        <tag>vitis</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>形态学图像处理</title>
+    <url>/ic_backup/2022/06/01/%E5%BD%A2%E6%80%81%E5%AD%A6%E5%9B%BE%E5%83%8F%E5%A4%84%E7%90%86/</url>
+    <content><![CDATA[<h1 id="形态学简介"><a href="#形态学简介" class="headerlink" title="形态学简介"></a>形态学简介</h1><p>形态学（morphology）是原生物学的专业分支，主要研究的是动植物的形态与结构。在1964年，数学形态学诞生于法国巴黎，1968年成立法国枫丹白露数学形态学研究中心是，它是以形态为基础对图像进行分析的数学工具。90年代至今，数学形态学在模式识别，编码，运动分析，运动景物描述等方面取得进展，<br>用于数值函数的形态学算子开发。</p>
+<p>$\textcolor{RubineRed}{具体一点，我们以数学形态学为工具，从图像中提取表达和描绘区域形状的有用的图像分量，如边界、骨架等。}$</p>
+<h1 id="集合论"><a href="#集合论" class="headerlink" title="集合论"></a>集合论</h1><p>形态学的语言是集合论，处理图像时，数学形态学中的集合表示图像中的目标。</p>
+<h2 id="元素和集合"><a href="#元素和集合" class="headerlink" title="元素和集合"></a>元素和集合</h2><p>一幅图像称为一个集合，集合也称样本空间$\Omega $。$\textcolor{BurntOrange}{对于二值图像，可认为取值为1的点对应于图像前景像素，取值为0的点对应于背景。} $</p>
+<p>（1）集合元素的运算</p>
+<p>集合的基本运算总共有 4 种，分别是交、并、差、补。</p>
+<p>a. 交运算</p>
+<p>对于集合A、B，交运算（Intersection）被定义为：</p>
+<img src="https://s3.bmp.ovh/imgs/2022/06/01/5d5de02c23f57ffd.png" alt="image-20220601103104930" style="zoom: 67%;" />
+
+<p>b. 并运算</p>
+<p>对于集合A、B，并运算（Union）被定义为：</p>
+<img src="https://s3.bmp.ovh/imgs/2022/06/01/dcf34435a98b7e31.png" alt="image-20220601103429751" style="zoom:67%;" />
+
+<p>c. 补运算</p>
+<p>集合A的补集是不包含于集合A的元素所组成的集合，表示为：</p>
+<img src="https://s3.bmp.ovh/imgs/2022/06/01/896903ce98ca230c.png" alt="image-20220601103819129" style="zoom:80%;" />
+
+<p>d. 差运算</p>
+<p>对于集合A、B，差运算（Relative Complement）被定义为：</p>
+<img src="https://s3.bmp.ovh/imgs/2022/06/01/56ea877da9838c49.png" alt="image-20220601103900936" style="zoom:80%;" />
+
+<p>可以看出，这个集合中的元素属于A，而不属于B。我们可根据$\Omega $集合差值运算来定义$A^c$，即$A^c$&#x3D;$\Omega $ - A。</p>
+<p>下面是一些公式；</p>
+<img src="https://s3.bmp.ovh/imgs/2022/06/01/97ebd34767c70bfc.jpg" alt="img" style="zoom: 80%;" />
+
+<p>（2）形态学的运算</p>
+<p>二值形态学中的运算对象是集合，在图像处理中，$\textcolor{OrangeRed}{我们使用两类像素集合的形态学：}$</p>
+<p>a 目标元素：前景像素的集合</p>
+<p>b 结构元（SE）：可以按照前景像素和背景像素来规定</p>
+<img src="https://s3.bmp.ovh/imgs/2022/06/01/2b27bfe511483e3a.png" style="zoom:80%;" />]]></content>
+      <categories>
+        <category>FPGA</category>
+      </categories>
+      <tags>
+        <tag>数字图像处理</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>卷积神经网络</title>
+    <url>/ic_backup/2022/06/08/%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C/</url>
+    <content><![CDATA[<h1 id="卷积神经网络CNN"><a href="#卷积神经网络CNN" class="headerlink" title="卷积神经网络CNN"></a>卷积神经网络CNN</h1><p>卷积神经网络的英文全称为Convolutional Neural Network，它是一类强大的、为处理图像数据而设计的神经网络，是一种深度的监督学习下的机器学习模型。基于卷积神经网络架构的模型在计算机视觉领域中已经占主导地位，应用于目标检测、边缘检测、语义分割、图像描述、问答系统、风格迁移等场景。</p>
+<h2 id="特征学习阶段"><a href="#特征学习阶段" class="headerlink" title="特征学习阶段"></a>特征学习阶段</h2><h3 id="图像卷积（卷积层）"><a href="#图像卷积（卷积层）" class="headerlink" title="图像卷积（卷积层）"></a>图像卷积（卷积层）</h3><p>卷积层是个错误的叫法，因为它所表达的运算其实是互相关运算（cross-correlation）。下面动图很好的展示了图像卷积的过程。首先我们需要有一个卷积核（Kernel或Filter），对于图像上的一个点，让模板的原点和该点重合，然后模板上的点和图像上对应的点相乘，然后各点的积相加，就得到了该点的卷积值。<br><img src="https://s3.bmp.ovh/imgs/2022/06/09/ea09d23aae99b197.gif"></p>
+<p>举例一个处理二维图像数据的例子（暂时不考虑三维）。下面我们输入一个高度是3、宽度是3的二维张量（形象的表达是一个3*3的矩阵）。卷积核的高度和宽度都是2。</p>
+<p>输出的卷积层有时被称为<em>特征映射</em>（feature map），因为它可以被视为一个输入映射到下一层的空间维度的转换器。 </p>
+<p><img src="https://s3.bmp.ovh/imgs/2022/06/09/2292292c8309553b.png" alt="image-20220609193620360"></p>
+<p>从[[0,1],[3,4]]开始与卷积核计算。计算完向右移动一个格子，[[1,2],[4,5]]—&gt;[[3,4],[6,7]]—&gt;[[4,5],[7,8]]<br>阴影部分是第一个输出元素：<br>0 * 0+ 1 * 1+3 * 2 + 4 * 3&#x3D;19<br>其余输出元素：<br>1 * 0+ 2 * 1+4 * 2 + 5 * 3&#x3D;25<br>3 * 0+ 4 * 1+6 * 2 + 7 * 3&#x3D;37<br>4 * 0+ 5 * 1+7 * 2 + 8 * 3&#x3D;19</p>
+<p>从上面我们可以看到被选中蓝色的部分每次先向右移动一次，当移动到最边缘时，从开始部位向下移动再向右移动。当没有声明步幅时默认是1，也可以进行人为的修改。</p>
+<h3 id="步幅（Stride）"><a href="#步幅（Stride）" class="headerlink" title="步幅（Stride）"></a>步幅（Stride）</h3><p>在计算互相关时，卷积窗口从输入张量的左上角开始，向下、向右滑动。上述例子默认移动一个元素。<font color='RedOrange'>为什么会引出步幅呢？这是为了实现高效计算或缩减采样的次数。</font>卷积窗口可以跳过中间位置，每次滑动多个元素。步幅分为水平步幅和垂直步幅。</p>
+<p><img src="https://s3.bmp.ovh/imgs/2022/06/09/18a5fe3567fefc12.png" alt="image-20220609200050250"></p>
+<p>上图是垂直步幅为3，水平步幅为2的二维互相关运算。 着色部分是输出元素以及用于输出计算的输入和内核张量元素：<br>0 * 0 + 0 * 1 + 1 * 2 + 2 * 3 &#x3D; 8<br>0 * 0 + 6 * 1 + 0 * 2 + 0 * 3 &#x3D; 6<br>可以看到，为了计算输出中第一列的第二个元素和第一行的第二个元素，卷积窗口分别向下滑动三行和向右滑动两列。但是，当卷积窗口继续向右滑动两列时，没有输出，因为输入元素无法填充窗口（除非我们添加另一列填充）。</p>
+<p>如果观察仔细，可以看到我们在原3<em>3的矩阵周围加了一圈0元素，让他变成了5</em>5的矩阵。这个操作叫做<strong>填充</strong>。</p>
+<h3 id="填充（Padding）"><a href="#填充（Padding）" class="headerlink" title="填充（Padding）"></a>填充（Padding）</h3><p>在应用多层卷积时，我们常常丢失边缘像素。 由于我们通常使用小卷积核，因此对于任何单个卷积，我们可能只会丢失几个像素。 但随着我们应用许多连续卷积层，累积丢失的像素数就多了。所以引出了填充的方法：在图像便捷填充元素（通常为0，也可以复制图像边界填充）。</p>
+<p><img src="https://s3.bmp.ovh/imgs/2022/06/09/cb8eaf069a738639.png" alt="image-20220609200117262"></p>
+<p>我们将3 * 3输入填充到5 * 5，那么它的输出就增加为4 * 4。阴影部分是第一个输出元素以及用于输出计算的输入和核张量元素：<br>0 * 0+ 0 * 1 + 0 * 2 + 0 * 3 &#x3D; 0。</p>
+<h4 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h4><p><font color='RedOrange'>填充就是在图像边界添加一圈新的元素，步幅就是每次移动长度。</font></p>
+<h3 id="多输入、多输出图像（Depth）"><a href="#多输入、多输出图像（Depth）" class="headerlink" title="多输入、多输出图像（Depth）"></a>多输入、多输出图像（Depth）</h3><p>上述例子中是单通道的卷积，但是生活中更多是多通道的图像，如：RGB。我们用i表示输入张量的通道数，用o表示输出张量的通道数，h和w分别为高和宽。</p>
+<p>例如，每个RGB输入图像具有3 * h * w的形状。我们将这个大小为3的轴称为通道（channel）维度，也用Depth深度去表示。下图以双通道单输出为例，计算方式和单通道一样，分别计算再将两个通道的元素相加得到输出结果。</p>
+<p><img src="https://s3.bmp.ovh/imgs/2022/06/09/9e6db7418a53b1fc.png" alt="image-20220609200140629"></p>
+<p>但是实际情况可能不会只有一个输出通道，当我们进行分类时，可能会将不同类别的元素进行归类，这就需要多通道来解决这个问题。</p>
+<p><img src="https://s3.bmp.ovh/imgs/2022/06/09/98c04c2deda05236.png" alt="image-20220609200202178"></p>
+<p>为了获得多个通道的输出，我们可以为每个输出通道创建一个形状为i * h * w的卷积核张量，<font color='Salmon'>这样卷积核（Kernel）的形状是o * i * h * w。</font></p>
+<h2 id="激活函数"><a href="#激活函数" class="headerlink" title="激活函数"></a>激活函数</h2><p>卷积层后面常常跟RELU层,该层主要目的在于引入非线性计算单元,RELU函数如下:</p>
+<p><img src="https://s3.bmp.ovh/imgs/2022/06/09/741a1a27a0e0aae2.png"></p>
+<p>ReLU 是一种单个像素操作，<strong>并将特征图中的所有负值替换为零</strong>。 ReLU 的目的是在我们的 ConvNet 中引入非线性，因为我们希望训练的 ConvNet 学习的大多数现实世界数据都是非线性的（卷积是一种线性运算——元素矩阵乘法和加法，所以我们通过引入非线性函数（如 ReLU）来解释非线性。<br><img src="https://s3.bmp.ovh/imgs/2022/06/09/de25fe90023ee855.png"></p>
+<p>上述左侧为应用RELU操作前效果图,右侧为应用RELU操作后效果图.</p>
+<h2 id="汇聚层"><a href="#汇聚层" class="headerlink" title="汇聚层"></a>汇聚层</h2><p><font color='Salmon'>池化层或称汇聚层（Pooling）操作主要用于卷积层或特征图的维数减少，保留相对重要信息。</font>有时这种空间池化也称为<strong>下采样</strong>。池化层可以分为最大池化、平均池化、和池化。通常情况下，最大池化层使用最多。</p>
+<p>与卷积层类似，<font color='Salmon'>汇聚层运算符由一个固定形状的窗口组成，该窗口根据其步幅大小在输入的所有区域上滑动，为固定形状窗口（有时称为汇聚窗口）遍历的每个位置计算一个输出。</font> 然而，不同于卷积层中的输入与卷积核之间的互相关计算，汇聚层不包含参数。 相反，池运算是确定性的，我们通常计算汇聚窗口中所有元素的最大值或平均值。这些操作分别称为<strong>最大汇聚层（maximum pooling）</strong>和<strong>平均汇聚层（average pooling）</strong>。</p>
+<p><img src="https://s3.bmp.ovh/imgs/2022/06/09/fa29fd85fff070fc.png"></p>
+<p>上图是最大汇聚层，输出每个汇聚窗口的最大值：<br>max（0，1，3，4） &#x3D; 4<br>max（1，2，4，5） &#x3D; 5<br>max（3，4，6，7） &#x3D; 7<br>max（4，5，7，8） &#x3D; 8<br>平均汇聚层是将汇聚窗口的所有元素求平均，在输出。</p>
+<h2 id="分类阶段"><a href="#分类阶段" class="headerlink" title="分类阶段"></a>分类阶段</h2><p>这里我们主要使用了全连接层（fully connected layers，FC），全连接层是传统的多层感知器，在输出层使用了 Softmax 激活函数。“全连接”意味着前一层的每个神经元都连接到下一层的每个神经元。</p>
+<p>卷积层和池化层的输出代表输入图像的高级特征。全连接层的目的是使用这些特征根据训练数据集将输入图像分类为各种类别，可以理解成“分类器”的作用。</p>
+<p>全连接层的输出概率之和为 1,主要通过在全连接层的输出层使用 Softmax 作为激活函数来确保的。 Softmax 函数采用任意实值作为输入，并将其压缩为介于 0 和 1 之间且总和为 1的值 。</p>
+<p><img src="https://s3.bmp.ovh/imgs/2022/06/09/f1d7deb03dee2d29.png"></p>
+<p>在上图中，对全连接层使用 softmax 给出了汽车、卡车和自行车等类别的概率值。<br>参考文章链接：<a href="https://blog.csdn.net/sgzqc/article/details/120544978">https://blog.csdn.net/sgzqc/article/details/120544978</a></p>
+<p><u>推荐一本宝藏学习机器学习的书：</u></p>
+<p><a href="https://zh-v2.d2l.ai/chapter_preface/index.html">序言 — 动手学深度学习 2.0.0-beta0 documentation (d2l.ai)</a></p>
+<p><u>关于CNN的学习，推荐一个知乎专栏：</u></p>
+<p><a href="https://www.zhihu.com/column/c_141391545">卷积神经网络（CNN）入门讲解 - 知乎 (zhihu.com)</a></p>
+]]></content>
+      <categories>
+        <category>CNN</category>
+      </categories>
+      <tags>
+        <tag>CNN</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>红外图像处理</title>
+    <url>/ic_backup/2022/03/31/%E7%BA%A2%E5%A4%96%E5%9B%BE%E5%83%8F%E5%A4%84%E7%90%86/</url>
+    <content><![CDATA[<p>红外图像处理</p>
+<p>1.红外成像和红外热成像的区别</p>
+<p>要想知道它们之间的区别，首先要了解两个概念：主动成像和被动成像，</p>
+<p>主动成像：主动发射信号然后成像</p>
+<p>被动成像不需要发射信号即可成像</p>
+<p>(1) 红外热成像（制冷型&#x2F;非制冷型中长波红外热辐射计）</p>
+<p>红外热成像仪的原理是探测目标自身发出的红外辐射，并通过光电转换、信号处理等手段，将目标物体的温度分布图像转换成视频图像，采用应用电子技术和计算机软件与红外线技术的结合，用来检测和测量热辐射。</p>
+<p>(2) 红外成像</p>
+<p>红外成像一般是主动红外，基本原理是利用截止带宽在短波红外的摄像机可以感受红外光（1um～2um短波红外）的光谱特性，配合配有带通滤波片的灯作为“照明源”来成像；</p>
+]]></content>
+      <tags>
+        <tag>红外图像处理</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>腐蚀与膨胀</title>
+    <url>/ic_backup/2022/06/01/%E8%85%90%E8%9A%80%E4%B8%8E%E8%86%A8%E8%83%80/</url>
+    <content><![CDATA[<h1 id="腐蚀"><a href="#腐蚀" class="headerlink" title="腐蚀"></a>腐蚀</h1><p>形态学公式是根据结构元和前景像素集合A写出的，假设A和B是$Z^2$中的两个集合，B对A的腐蚀（表示为）$A\ominus B$ 定义为</p>
+<img src="https://s3.bmp.ovh/imgs/2022/06/01/023ea3c22198797f.png" alt="image-20220601202120252" style="zoom:67%;" />
+
+<p>式中，A是前景像素的一个集合，B是一个结构元（SE），z项是前景像素值（1）。</p>
+<p>$\textcolor{BrickRed}{这个公式指出，B 对A 的腐蚀是所有点z 的集合，条件是平移z 后的B 包含于A}$（这个位移是相对于B的原点定义的）。</p>
+<img src="https://s3.bmp.ovh/imgs/2022/06/01/718cea7c7d624371.png" alt="image-20220601205632968" style="zoom:67%;" />
+
+<p>如图所示，我们想用一个SE B去腐蚀Image I，就是要把B完全包含在A的图像中，然后对结构单元进行平移，得到B的中心点的运动轨迹，组成新的图像，此为用B腐蚀A的图像。</p>
+<img src="https://s3.bmp.ovh/imgs/2022/06/01/e631338c5b26b023.png" alt="image-20220601211028134" style="zoom:67%;" />
+
+<p>图像本身、结构元的<strong>形状和原点位置的选取</strong>都会影响腐蚀操作的结果。</p>
+<p><font color='orange'>腐蚀能够消融物体的边界，而具体的腐蚀结果与图像本身和结构元的形状有关：</font>如果物体整体上大于结构元，腐蚀的结构是使物体变“瘦”一圈，这一圈到底有多大是由结构元决定的：<strong>如果物体本身小于结构元，则在腐蚀后的图像中物体将完全消失；如物体仅有部分区域小于结构元（如细小的连通），则腐蚀后物体会在细连通处断裂，分离为两部分。</strong>因此在实际应用中，可以利用腐蚀运算<strong>去除物体之间的粘连，消除图像中的小颗粒噪声。</strong></p>
+<h1 id="膨胀"><a href="#膨胀" class="headerlink" title="膨胀"></a>膨胀</h1><p>假设A和B是$Z^2$的两个集合，B对A的膨胀（表示为$A\oplus B$）定义为</p>
+<img src="https://s3.bmp.ovh/imgs/2022/06/01/805b28653b6bd314.png" alt="image-20220601211651802" style="zoom:67%;" />
+
+<p>类似于腐蚀，这个公式是以B相对于其原点反射并将这一反射平移 z为基础的。</p>
+<img src="https://s3.bmp.ovh/imgs/2022/06/01/b1aca1dc4b2f60c2.png" alt="image-20220601213040812" style="zoom:67%;" />
+
+<p>如图所示，膨胀就是以选定一个结构元B，以B的中心点去对结构A的每一个前景像素进行扫描，行动轨迹构成一幅新的图像，新图像在原本基础上膨胀了一圈。<strong>膨胀会“增化”或“粗化”图像的高亮区域。</strong></p>
+<img src="https://s3.bmp.ovh/imgs/2022/06/01/7177558fce869e86.png" alt="image-20220601212816206" style="zoom:67%;" />
+
+<p><font color='orange'>图像本身、结构元的形状和原点位置的选取都会影响腐蚀操作的结果。</font><br>膨胀运算具有<strong>扩大图像和填充图像中比结构元小的成分</strong>的作用，因此在实际应用中可以利用膨胀运算<strong>连接相邻物体和填充图像中的小孔和狭窄的缝隙</strong>。</p>
+<h1 id="开运算与闭运算"><a href="#开运算与闭运算" class="headerlink" title="开运算与闭运算"></a>开运算与闭运算</h1><p>（1）开运算</p>
+<p>开运算通常平滑物体的轮廓、断开狭窄的狭颈、消除细长的突出物。</p>
+<p>结构元B 对集合A的开运算（$A\circ  B$）定义为：</p>
+<img src="https://s3.bmp.ovh/imgs/2022/06/01/f24b5696215d5470.png" alt="image-20220601220050106" style="zoom: 67%;" />
+
+<p>开运算 &#x3D; 先腐蚀运算，再膨胀运算（看上去把细微连在一起的两块目标分开了） </p>
+<p>开运算的效果图如下图所示： </p>
+<p><img src="https://s3.bmp.ovh/imgs/2022/06/02/02e63d036d07e182.png"></p>
+<ul>
+<li>开运算总结：<br>（a）开运算能够除去孤立的小点，毛刺和小桥，而总的位置和形状不便。<br>（b）开运算是一个基于几何运算的滤波器。<br>（c）结构元素大小的不同将导致滤波效果的不同。<br>（d）不同的结构元素的选择导致了不同的分割，即提取出不同的特征。</li>
+</ul>
+<p>（2）闭运算</p>
+<p>闭运算同样平滑轮廓，但与开运算相反，它通常弥合狭窄的断裂和细长的沟壑，消除小孔，并填补轮廓中的缝隙。</p>
+<img src="https://s3.bmp.ovh/imgs/2022/06/01/347c4c9a39715d0e.png" alt="image-20220601220255005" style="zoom: 67%;" />
+
+<p>闭运算 &#x3D; 先膨胀运算，再腐蚀运算（看上去将两个细微连接的图块封闭在一起）<br>闭运算的效果图如下图所示：</p>
+<p><img src="https://s3.bmp.ovh/imgs/2022/06/08/c5262cdd3f8cf336.png"></p>
+<p>闭运算总结：<br>（a）闭运算能够填平小湖（即小孔），弥合小裂缝，而总的位置和形状不变。<br>（b）闭运算是通过填充图像的凹角来滤波图像的。<br>（c）结构元素大小的不同将导致滤波效果的不同。<br>（d）不同结构元素的选择导致了不同的分割。</p>
+]]></content>
+      <categories>
+        <category>CNN</category>
+      </categories>
+      <tags>
+        <tag>数字图像处理</tag>
+      </tags>
+  </entry>
+</search>
